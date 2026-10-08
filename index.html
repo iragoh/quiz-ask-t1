@@ -831,7 +831,28 @@
             } else {
                 finishGame();
             }
+			
         };
+		
+			feedbackNextBtn.addEventListener('click', () => {
+			// Hide feedback popup
+			feedbackModal.classList.add('hidden-screen');
+			
+			const action = feedbackNextBtn.dataset.action;
+
+			if (action === "retry") {
+				// Re-open the EXACT SAME question so player can choose again
+				screens.quiz.classList.remove('hidden-screen');
+			} else if (action === "next") {
+				// Resume game or finish if all 10 questions are completed
+				if (questionsRemaining.length === 0) {
+					endGame();
+				} else {
+					isPaused = false; // Continue spaceship battle
+				}
+			}
+		});
+
 
         function finishGame() {
             isPlaying = false;
@@ -925,24 +946,6 @@
             };
         }
 
-		feedbackNextBtn.addEventListener('click', () => {
-			// Hide feedback popup
-			feedbackModal.classList.add('hidden-screen');
-			
-			const action = feedbackNextBtn.dataset.action;
-
-			if (action === "retry") {
-				// Re-open the EXACT SAME question so player can choose again
-				screens.quiz.classList.remove('hidden-screen');
-			} else if (action === "next") {
-				// Resume game or finish if all 10 questions are completed
-				if (questionsRemaining.length === 0) {
-					endGame();
-				} else {
-					isPaused = false; // Continue spaceship battle
-				}
-			}
-		)};
 
         // Initialize canvas sizing on window load
         window.onload = () => {
