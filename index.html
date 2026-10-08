@@ -148,11 +148,14 @@
         </div>
     </div>
 
-    <div id="feedback-modal" class="hidden-screen absolute inset-0 z-30 flex items-center justify-center bg-black/50 pointer-events-none">
-        <div id="feedback-box" class="rounded-3xl p-8 transform scale-90 opacity-0 transition-all duration-300 text-center shadow-2xl flex flex-col items-center">
-            <div id="feedback-icon" class="text-7xl mb-4"></div>
-            <h2 id="feedback-title" class="space-font text-4xl font-black mb-2 drop-shadow-md"></h2>
-            <p id="feedback-msg" class="text-lg font-medium"></p>
+    <div id="feedback-modal" class="hidden-screen absolute inset-0 z-30 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+        <div id="feedback-box" class="rounded-3xl p-6 md:p-8 transform scale-90 opacity-0 transition-all duration-300 text-center shadow-2xl flex flex-col items-center glass max-w-lg w-full border-4">
+            <div id="feedback-icon" class="text-6xl md:text-7xl mb-2"></div>
+            <h2 id="feedback-title" class="space-font text-3xl md:text-4xl font-black mb-2 drop-shadow-md"></h2>
+            <p id="feedback-msg" class="text-base md:text-lg font-medium mb-6 leading-relaxed text-slate-200"></p>
+            <button id="feedback-next-btn" class="hidden space-font text-lg px-8 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 font-bold text-white transition-all shadow-[0_0_15px_rgba(16,185,129,0.4)] btn-hover cursor-pointer">
+                SETERUSNYA ➔
+            </button>
         </div>
     </div>
 
@@ -260,7 +263,7 @@
                 explanation: "Penerangan: Tag heading seperti <h1> digunakan untuk tajuk atau heading pada halaman web. Tag <h1> biasanya menghasilkan tajuk dengan saiz heading yang paling besar dalam set heading HTML."
             },
             {
-                q: "Apakah fungsi kod arahan di bawah?\n<img src = \"logo.jpg\">",
+                q: "Apakah fungsi kod arahan di bawah?\n ""<img src = \"logo.jpg\">"",
                 options: ["A. Memasukkan teks ke dalam laman sesawang", "B. Memasukkan imej ke dalam laman sesawang", "C. Memasukkan tajuk kepada laman utama", "D. Pautan mudah kepada imej"],
                 ans: 1, // B
                 explanation: "Penerangan: Tag <img> digunakan untuk memaparkan imej pada halaman web. Atribut src menentukan lokasi atau nama fail imej yang hendak dipaparkan, dalam contoh ini ialah logo.jpg."
@@ -292,6 +295,7 @@
         const feedbackIcon = document.getElementById('feedback-icon');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackMsg = document.getElementById('feedback-msg');
+        const feedbackNextBtn = document.getElementById('feedback-next-btn');
 
         // --- GAME STATE ---
         let playerName = "";
@@ -701,26 +705,41 @@
             feedbackTitle.innerText = title;
             feedbackMsg.innerText = msg;
             
-            feedbackBox.className = `rounded-3xl p-8 transform transition-all duration-300 text-center shadow-2xl flex flex-col items-center glass border-4 ${type === 'success' ? 'border-green-500 shadow-[0_0_30px_rgba(34,197,94,0.5)]' : 'border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)]'}`;
-            feedbackTitle.className = `space-font text-4xl font-black mb-2 drop-shadow-md ${type === 'success' ? 'text-green-400' : 'text-red-400'}`;
+            feedbackBox.className = `rounded-3xl p-6 md:p-8 transform transition-all duration-300 text-center shadow-2xl flex flex-col items-center glass max-w-lg w-full border-4 ${type === 'success' ? 'border-green-500 shadow-[0_0_30px_rgba(34,197,94,0.5)]' : 'border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5)]'}`;
+            feedbackTitle.className = `space-font text-3xl md:text-4xl font-black mb-2 drop-shadow-md ${type === 'success' ? 'text-green-400' : 'text-red-400'}`;
             feedbackIcon.innerText = type === 'success' ? '🌟' : '❌';
 
             feedbackModal.classList.remove('hidden-screen');
-            // Trigger animation
+            // Trigger entry animation
             setTimeout(() => {
                 feedbackBox.classList.remove('scale-90', 'opacity-0');
                 feedbackBox.classList.add('scale-100', 'opacity-100');
             }, 10);
 
-            // Hide after 2 seconds
-            setTimeout(() => {
-                feedbackBox.classList.remove('scale-100', 'opacity-100');
-                feedbackBox.classList.add('scale-90', 'opacity-0');
+            if (type === 'success') {
+                // Display Next button so player can read explanation before advancing
+                feedbackNextBtn.classList.remove('hidden');
+                feedbackNextBtn.onclick = () => {
+                    feedbackBox.classList.remove('scale-100', 'opacity-100');
+                    feedbackBox.classList.add('scale-90', 'opacity-0');
+                    setTimeout(() => {
+                        feedbackModal.classList.add('hidden-screen');
+                        feedbackNextBtn.classList.add('hidden');
+                        if (callback) callback();
+                    }, 300);
+                };
+            } else {
+                // Auto-dismiss for wrong attempts so player can quickly re-try
+                feedbackNextBtn.classList.add('hidden');
                 setTimeout(() => {
-                    feedbackModal.classList.add('hidden-screen');
-                    if (callback) callback();
-                }, 300);
-            }, type === 'success' ? 2000 : 1500);
+                    feedbackBox.classList.remove('scale-100', 'opacity-100');
+                    feedbackBox.classList.add('scale-90', 'opacity-0');
+                    setTimeout(() => {
+                        feedbackModal.classList.add('hidden-screen');
+                        if (callback) callback();
+                    }, 300);
+                }, 1500);
+            }
         }
 
         // --- STREAMING_CHUNK:Game Start and End Transitions ---
