@@ -373,12 +373,12 @@
             },
             {
                 q: "Tag HTML manakah yang digunakan untuk mengarahkan pelayar web memaparkan tajuk terbesar?",
-                options: ["A. <body> </body>", "B. <head> </head>", "C. <h1> </h1>", "D. <p> </p>"],
+                options: ["A. "<body> </body>"", "B. "<head> </head>"", "C. "<h1> </h1>"", "D. "<p> </p>""],
                 ans: 2, // C
                 explanation: "Tag <h1> mewakili tajuk (heading) peringkat pertama yang paling utama dan mempunyai saiz fon terbesar."
             },
             {
-                q: "Apakah fungsi kod arahan HTML berikut?\n<img src=\"logo.jpg\">",
+                q: "Apakah fungsi kod arahan HTML berikut?\n "<img src=\"logo.jpg\">"",
                 options: ["A. Memasukkan teks ke dalam laman sesawang", "B. Memasukkan imej ke dalam laman sesawang", "C. Memasukkan tajuk utama", "D. Membuat pautan ke fail imej"],
                 ans: 1, // B
                 explanation: "Tag <img> dengan atribut 'src' digunakan khusus untuk memaparkan imej pada laman web."
@@ -650,7 +650,7 @@
                     x: Math.random() * (canvas.width - 60) + 30,
                     y: -50,
                     size: 30 + Math.random() * 16,
-                    speed: 3.2 + Math.random() * 2.2,
+                    speed: 0.8 + Math.random() * 1.0, // Reduced speed from ~3.2-5.4 to 0.8-1.8 for gentle floating
                     emoji: '☄️',
                     rotation: 0,
                     rotSpeed: (Math.random() - 0.5) * 0.1
