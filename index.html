@@ -490,4 +490,454 @@
         }
 
         const canvas = document.getElementById('game-canvas');
-        const ctx
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (player) {
+                player.y = canvas.height - 90;
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        const player = {
+            x: window.innerWidth / 2,
+            y: window.innerHeight - 90,
+            size: 40,
+            speed: 5,
+            emoji: '🚀'
+        };
+
+        let bullets = [];
+        let enemies = [];
+        let obstacles = [];
+        let particles = [];
+
+        let playerName = "";
+        let questionsRemaining = [];
+        let currentQuestionObj = null;
+        let score = 0;
+        let firstTryCorrectCount = 0;
+        let isFirstTryForCurrentQ = true;
+
+        let isPlaying = false;
+        let isPaused = false;
+        let animationId = null;
+
+        const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
+        window.addEventListener('keydown', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = true; });
+        window.addEventListener('keyup', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = false; });
+
+        function setupMobileButton(btnId, keyName) {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            
+            const startHandler = (e) => { e.preventDefault(); keys[keyName] = true; };
+            const endHandler = (e) => { e.preventDefault(); keys[keyName] = false; };
+
+            btn.addEventListener('touchstart', startHandler, { passive: false });
+            btn.addEventListener('touchend', endHandler, { passive: false });
+            btn.addEventListener('mousedown', startHandler);
+            btn.addEventListener('mouseup', endHandler);
+        }
+
+        setupMobileButton('btn-up', 'ArrowUp');
+        setupMobileButton('btn-down', 'ArrowDown');
+        setupMobileButton('btn-left', 'ArrowLeft');
+        setupMobileButton('btn-right', 'ArrowRight');
+
+        let isDragging = false;
+        function updatePlayerPos(clientX, clientY) {
+            if (!isPlaying || isPaused) return;
+            player.x = clientX;
+            player.y = clientY - 30;
+            
+            if (player.x < player.size / 2) player.x = player.size / 2;
+            if (player.x > canvas.width - player.size / 2) player.x = canvas.width - player.size / 2;
+            if (player.y < player.size / 2) player.y = player.size / 2;
+            if (player.y > canvas.height - player.size / 2) player.y = canvas.height - player.size / 2;
+        }
+
+        canvas.addEventListener('mousedown', e => { isDragging = true; updatePlayerPos(e.clientX, e.clientY); });
+        canvas.addEventListener('mousemove', e => { if (isDragging) updatePlayerPos(e.clientX, e.clientY); });
+        canvas.addEventListener('mouseup', () => isDragging = false);
+
+        canvas.addEventListener('touchstart', e => {
+            if (e.touches.length > 0) {
+                isDragging = true;
+                updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchmove', e => {
+            if (isDragging && e.touches.length > 0) {
+                e.preventDefault();
+                updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: false });
+
+        canvas.addEventListener('touchend', () => isDragging = false);
+
+        let lastShootTime = 0;
+        let lastEnemyTime = 0;
+        let lastObstacleTime = 0;
+
+        function updateGame() {
+            if (!isPlaying || isPaused) return;
+
+            const now = Date.now();
+
+            if (keys.ArrowLeft && player.x > player.size / 2) player.x -= player.speed;
+            if (keys.ArrowRight && player.x < canvas.width - player.size / 2) player.x += player.speed;
+            if (keys.ArrowUp && player.y > player.size / 2) player.y -= player.speed;
+            if (keys.ArrowDown && player.y < canvas.height - player.size / 2) player.y += player.speed;
+
+            if (now - lastShootTime > 260) {
+                bullets.push({ x: player.x, y: player.y - player.size / 2, radius: 4, speed: 12, color: '#38bdf8' });
+                playShootSound();
+                lastShootTime = now;
+            }
+
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                let b = bullets[i];
+                b.y -= b.speed;
+                if (b.y < 0) bullets.splice(i, 1);
+            }
+
+            if (now - lastEnemyTime > 2000 && questionsRemaining.length > 0 && enemies.length < 2) {
+                enemies.push({
+                    x: Math.random() * (canvas.width - 80) + 40,
+                    y: -50,
+                    size: 42,
+                    speed: 0.8 + Math.random() * 0.8,
+                    emoji: '👾',
+                    wobble: Math.random() * Math.PI * 2
+                });
+                lastEnemyTime = now;
+            }
+
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                let e = enemies[i];
+                e.y += e.speed;
+                e.x += Math.sin(e.wobble) * 1.6;
+                e.wobble += 0.05;
+
+                if (e.y > canvas.height + e.size) {
+                    enemies.splice(i, 1);
+                    continue;
+                }
+
+                for (let j = bullets.length - 1; j >= 0; j--) {
+                    let b = bullets[j];
+                    let dist = Math.hypot(e.x - b.x, e.y - b.y);
+                    if (dist < e.size / 2 + b.radius) {
+                        createExplosion(e.x, e.y, ['#a855f7', '#ec4899', '#38bdf8']);
+                        playExplosionSound();
+                        bullets.splice(j, 1);
+                        enemies.splice(i, 1);
+                        
+                        score += 100;
+                        updateHUD();
+                        triggerQuiz();
+                        break;
+                    }
+                }
+            }
+
+            if (now - lastObstacleTime > 1500) {
+                obstacles.push({
+                    x: Math.random() * (canvas.width - 60) + 30,
+                    y: -50,
+                    size: 30 + Math.random() * 16,
+                    speed: 1.0 + Math.random() * 1.2,
+                    emoji: '☄️',
+                    rotation: 0,
+                    rotSpeed: (Math.random() - 0.5) * 0.1
+                });
+                lastObstacleTime = now;
+            }
+
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let o = obstacles[i];
+                o.y += o.speed;
+                o.rotation += o.rotSpeed;
+
+                if (o.y > canvas.height + o.size) {
+                    obstacles.splice(i, 1);
+                    continue;
+                }
+
+                let dist = Math.hypot(o.x - player.x, o.y - player.y);
+                if (dist < o.size / 2 + player.size / 3) {
+                    createExplosion(player.x, player.y, ['#ef4444', '#f59e0b', '#ffffff']);
+                    playErrorSound();
+                    score = Math.max(0, score - 50);
+                    updateHUD();
+                    obstacles.splice(i, 1);
+                }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= p.decay;
+                if (p.life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!isPlaying) return;
+
+            bullets.forEach(b => {
+                ctx.beginPath();
+                ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+                ctx.fillStyle = b.color;
+                ctx.fill();
+                ctx.closePath();
+            });
+
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            });
+
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            ctx.font = `${player.size}px Arial`;
+            ctx.fillText(player.emoji, player.x, player.y);
+
+            enemies.forEach(e => {
+                ctx.font = `${e.size}px Arial`;
+                ctx.fillText(e.emoji, e.x, e.y);
+            });
+
+            obstacles.forEach(o => {
+                ctx.save();
+                ctx.translate(o.x, o.y);
+                ctx.rotate(o.rotation);
+                ctx.font = `${o.size}px Arial`;
+                ctx.fillText(o.emoji, 0, 0);
+                ctx.restore();
+            });
+        }
+
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        function createExplosion(x, y, colors) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    size: Math.random() * 4 + 2,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 1.0,
+                    decay: Math.random() * 0.04 + 0.03
+                });
+            }
+        }
+
+        function updateHUD() {
+            hudScore.innerText = score;
+            hudProgress.innerText = (allQuestions.length - questionsRemaining.length);
+        }
+
+        function triggerQuiz() {
+            isPaused = true;
+            isFirstTryForCurrentQ = true;
+
+            currentQuestionObj = questionsRemaining.shift();
+            
+            const formattedQuestion = currentQuestionObj.q.replace(/\n/g, '<br>');
+            qText.innerHTML = `<span class="text-xs text-yellow-400 space-font font-bold">SOALAN ${10 - questionsRemaining.length} / 10:</span><br><br>${formattedQuestion}`;
+            
+            optionsContainer.innerHTML = '';
+
+            currentQuestionObj.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = "w-full text-left p-3.5 sm:p-4 rounded-xl bg-slate-800 hover:bg-blue-600/40 border border-slate-700 hover:border-blue-400 transition-all text-xs sm:text-sm font-semibold text-slate-200 active:scale-98 flex items-center justify-between cursor-pointer";
+                btn.innerHTML = `<span>${opt}</span> <span class="text-base opacity-80">🚀</span>`;
+                
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    evaluateAnswer(index, btn);
+                };
+                optionsContainer.appendChild(btn);
+            });
+
+            screens.quiz.classList.remove('hidden-screen');
+        }
+
+        function evaluateAnswer(selectedIndex, buttonEl) {
+            const isCorrect = (selectedIndex === currentQuestionObj.ans);
+
+            if (isCorrect) {
+                playSuccessSound();
+                if (isFirstTryForCurrentQ) {
+                    firstTryCorrectCount++;
+                    score += 200;
+                } else {
+                    score += 100;
+                }
+                updateHUD();
+
+                feedbackBox.className = "rounded-3xl p-6 sm:p-8 text-center shadow-2xl flex flex-col items-center glass-card max-w-lg w-full max-h-[85vh] overflow-y-auto touch-scroll border-2 border-green-500/60 my-auto";
+                feedbackIcon.innerText = "🎉";
+                feedbackTitle.innerText = "JAWAPAN TEPAT!";
+                feedbackTitle.className = "space-font text-xl sm:text-3xl font-black mb-2 text-green-400 drop-shadow-md";
+                feedbackMsg.innerText = currentQuestionObj.explanation;
+
+                feedbackNextBtn.innerText = "TERUSKAN MISI ➔";
+                feedbackNextBtn.dataset.action = "next";
+                feedbackNextBtn.className = "w-full space-font text-xs sm:text-sm px-8 py-3.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 font-bold text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.5)] active:scale-95 cursor-pointer";
+
+                screens.quiz.classList.add('hidden-screen');
+                screens.feedback.classList.remove('hidden-screen');
+            } else {
+                playErrorSound();
+                isFirstTryForCurrentQ = false;
+                
+                feedbackBox.className = "rounded-3xl p-6 sm:p-8 text-center shadow-2xl flex flex-col items-center glass-card max-w-lg w-full max-h-[85vh] overflow-y-auto touch-scroll border-2 border-red-500/80 my-auto bg-slate-900/95";
+                feedbackIcon.innerText = "❌";
+                feedbackTitle.innerText = "Jawapan Salah!";
+                feedbackTitle.className = "space-font text-xl sm:text-3xl font-black mb-2 text-red-400 drop-shadow-md";
+                feedbackMsg.innerHTML = `<span class="block mb-2 font-bold text-yellow-300">Sila cuba lagi soalan ini.</span>${currentQuestionObj.explanation}`;
+                
+                feedbackNextBtn.innerText = "🔄 CUBA LAGI";
+                feedbackNextBtn.dataset.action = "retry";
+                feedbackNextBtn.className = "w-full space-font text-xs sm:text-sm px-8 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 font-bold text-white transition-all shadow-[0_0_20px_rgba(245,158,11,0.5)] active:scale-95 cursor-pointer";
+
+                screens.quiz.classList.add('hidden-screen');
+                screens.feedback.classList.remove('hidden-screen');
+            }
+        }
+
+        feedbackNextBtn.onclick = (e) => {
+            if (e) e.preventDefault();
+            screens.feedback.classList.add('hidden-screen');
+
+            const action = feedbackNextBtn.dataset.action;
+
+            if (action === "retry") {
+                screens.quiz.classList.remove('hidden-screen');
+            } else {
+                if (questionsRemaining.length > 0) {
+                    isPaused = false;
+                } else {
+                    finishGame();
+                }
+            }
+        };
+
+        function finishGame() {
+            isPlaying = false;
+            isPaused = false;
+
+            certName.innerText = playerName || "Komander Angkasa";
+            finalScoreEl.innerText = firstTryCorrectCount;
+
+            let badgeIcon = "🥇";
+            let badgeName = "Komander Emas";
+
+            if (firstTryCorrectCount === 10) {
+                badgeIcon = "🏆";
+                badgeName = "Laksamana Emas";
+            } else if (firstTryCorrectCount >= 7) {
+                badgeIcon = "🥇";
+                badgeName = "Kapten Perak";
+            } else if (firstTryCorrectCount >= 5) {
+                badgeIcon = "🥈";
+                badgeName = "Leftenan Gangsa";
+            } else {
+                badgeIcon = "🎖️";
+                badgeName = "Kadet Angkasa";
+            }
+
+            badgeIconEl.innerText = badgeIcon;
+            badgeNameEl.innerText = badgeName;
+
+            showScreen('end');
+        }
+
+        function handleStartMission(e) {
+            if (e) {
+                e.preventDefault();
+            }
+
+            const nameVal = studentNameInput ? studentNameInput.value.trim() : '';
+
+            if (nameError) nameError.classList.add('hidden-screen');
+            playerName = nameVal || "Komander Angkasa";
+
+            try {
+                initAudio();
+            } catch (err) {
+                console.warn('Audio init warning:', err);
+            }
+
+            score = 0;
+            firstTryCorrectCount = 0;
+            questionsRemaining = [...allQuestions];
+            bullets = [];
+            enemies = [];
+            obstacles = [];
+            particles = [];
+
+            updateHUD();
+            resizeCanvas();
+
+            player.x = canvas.width / 2;
+            player.y = canvas.height - 90;
+
+            showScreen('game');
+
+            isPlaying = true;
+            isPaused = false;
+
+            if (!animationId) {
+                gameLoop();
+            }
+        }
+
+        if (startBtn) {
+            startBtn.addEventListener('click', handleStartMission);
+        }
+
+        if (studentNameInput) {
+            studentNameInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    handleStartMission(e);
+                }
+            });
+        }
+
+        if (replayBtn) {
+            replayBtn.onclick = (e) => {
+                if (e) e.preventDefault();
+                showScreen('intro');
+            };
+        }
+
+        // Initialize canvas sizing on window load
+        window.onload = () => {
+            resizeCanvas();
+            showScreen('intro');
+        };
+    </script>
+</body>
+</html>
