@@ -1,14 +1,22 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="ms" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Misi Angkasa: Asas Sains Komputer</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap');
+    <title>Misi Kod Galaktik: Asas Sains Komputer Tingkatan 1</title>
 
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tone.js CDN for Audio Effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
         * {
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
@@ -16,66 +24,74 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0b0f19;
-            color: #ffffff;
-            min-height: 100vh;
+            background-color: #030712;
+            color: #f3f4f6;
             margin: 0;
             padding: 0;
+            min-height: 100vh;
+            width: 100%;
         }
 
-        h1, h2, h3, .space-font {
+        .space-font {
             font-family: 'Orbitron', sans-serif;
         }
 
-        /* Animated Twinkling Space Background */
-        .stars {
+        /* Animated Starry Space Background */
+        .stars-bg {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             z-index: 0;
-            background: #090d16;
+            background: #030712;
             background-image: 
-                radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 40px 70px, #38bdf8, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 50px 160px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 90px 40px, #a855f7, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 130px 80px, #ffffff, rgba(0,0,0,0)),
-                radial-gradient(2px 2px at 160px 120px, #38bdf8, rgba(0,0,0,0));
+                radial-gradient(1.5px 1.5px at 25px 35px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 50px 80px, #38bdf8, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 90px 140px, #a855f7, rgba(0,0,0,0)),
+                radial-gradient(2px 2px at 150px 60px, #ffffff, rgba(0,0,0,0)),
+                radial-gradient(1.5px 1.5px at 200px 180px, #38bdf8, rgba(0,0,0,0));
             background-repeat: repeat;
-            background-size: 200px 200px;
-            animation: twinkle 10s infinite linear;
+            background-size: 240px 240px;
+            animation: moveStars 12s infinite linear;
             pointer-events: none;
         }
 
-        @keyframes twinkle {
+        @keyframes moveStars {
             0% { transform: translateY(0); }
-            100% { transform: translateY(200px); }
+            100% { transform: translateY(240px); }
         }
 
-        /* Mobile-friendly custom scrollbar */
-        .glass-scroll::-webkit-scrollbar {
+        /* Strict screen visibility rules ensuring hidden screens never absorb clicks */
+        .hidden-screen {
+            display: none !important;
+            pointer-events: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+
+        /* Custom scrollbar for inner scrollable modals */
+        .touch-scroll::-webkit-scrollbar {
             width: 6px;
         }
-        .glass-scroll::-webkit-scrollbar-track {
+        .touch-scroll::-webkit-scrollbar-track {
             background: rgba(15, 23, 42, 0.6);
-            border-radius: 10px;
+            border-radius: 8px;
         }
-        .glass-scroll::-webkit-scrollbar-thumb {
-            background: rgba(59, 130, 246, 0.5);
-            border-radius: 10px;
+        .touch-scroll::-webkit-scrollbar-thumb {
+            background: rgba(59, 130, 246, 0.6);
+            border-radius: 8px;
         }
 
-        /* Glassmorphism containers */
-        .glass {
-            background: rgba(15, 23, 42, 0.88);
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.92);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.25);
         }
 
-        /* Touch interaction restricted strictly to canvas */
+        /* Canvas interaction rule */
         #game-canvas {
             display: block;
             width: 100%;
@@ -83,34 +99,23 @@
             touch-action: none;
         }
 
-        .hidden-screen {
-            display: none !important;
-        }
-
-        .btn-hover {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .btn-hover:active, .btn-hover:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
-        }
-
-        /* Print styles for Certificate */
+        /* Print formatting for Sijil Pencapaian */
         @media print {
             body {
                 background: white !important;
                 color: black !important;
             }
-            .stars, #game-screen, #start-btn, #replay-btn, .no-print, #mobile-controls {
+            .stars-bg, #game-screen, #mobile-controls, .no-print {
                 display: none !important;
             }
             #end-screen {
                 position: static !important;
+                display: block !important;
                 background: white !important;
                 color: black !important;
                 padding: 0 !important;
             }
-            .glass {
+            .glass-card {
                 background: white !important;
                 color: black !important;
                 border: 2px solid #000 !important;
@@ -119,80 +124,94 @@
             textarea, input {
                 border: 1px solid #000 !important;
                 color: black !important;
+                background: white !important;
             }
         }
     </style>
 </head>
-<body class="relative min-h-screen w-full bg-slate-950 text-white overflow-x-hidden overflow-y-auto flex items-center justify-center p-3 sm:p-6">
+<body class="min-h-screen w-full bg-slate-950 text-white overflow-y-auto relative flex flex-col items-center justify-start p-3 sm:p-6">
 
-    <!-- Starry Background -->
-    <div class="stars"></div>
+    <div class="stars-bg"></div>
 
-    <!-- INTRO / WELCOME SCREEN -->
-    <div id="intro-screen" class="glass glass-scroll rounded-3xl p-5 sm:p-8 max-w-2xl w-full mx-auto text-center shadow-2xl z-10 my-auto max-h-[88vh] overflow-y-auto border border-blue-500/30">
-        <div class="text-5xl sm:text-6xl mb-3 animate-bounce">🚀</div>
-        <h1 class="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 mb-2 drop-shadow-lg leading-tight">
-            Misi Kod Galaktik
-        </h1>
-        <h2 class="text-sm sm:text-lg text-blue-300 font-semibold mb-5">Asas Sains Komputer Tingkatan 1</h2>
-        
-        <div class="bg-slate-900/90 p-4 sm:p-5 rounded-2xl mb-5 text-left text-xs sm:text-sm border border-slate-700/80 w-full space-y-3 leading-relaxed shadow-inner">
-            <div>
-                <h3 class="font-bold text-yellow-400 mb-1 space-font text-xs sm:text-sm flex items-center gap-1.5">
-                    📜 Jalan Cerita:
-                </h3>
-                <p class="text-slate-300">Anda adalah Komander Angkasa yang ditugaskan memulihkan rangkaian komunikasi galaksi. Pepijat asing (👾) cuba mengganggu sistem navigation anda! Musnahkan pepijat untuk membuka soalan Asas Sains Komputer dan lengkapkan misi.</p>
-            </div>
+    <!-- MAIN MENU SCREEN -->
+    <div id="intro-screen" class="relative z-20 w-full max-w-2xl my-auto py-4">
+        <div class="glass-card rounded-3xl p-5 sm:p-8 text-center shadow-2xl border border-blue-500/40 space-y-5">
             
-            <div>
-                <h3 class="font-bold text-green-400 mb-1 space-font text-xs sm:text-sm flex items-center gap-1.5">
-                    🎯 Objektif Misi:
-                </h3>
-                <p class="text-slate-300">Elak asteroid (☄️), tembak pepijat (👾), dan jawab 10 soalan pilihan ganda dengan tepat untuk memperoleh Sijil Kehormatan Angkasa!</p>
+            <div class="inline-block p-3 rounded-2xl bg-blue-500/10 border border-blue-400/20 mb-1 animate-pulse">
+                <span class="text-4xl sm:text-6xl">🚀</span>
             </div>
-            
+
             <div>
-                <h3 class="font-bold text-blue-400 mb-1 space-font text-xs sm:text-sm flex items-center gap-1.5">
-                    🕹️ Cara Kawalan:
-                </h3>
-                <ul class="list-disc pl-5 text-slate-300 space-y-1">
-                    <li><strong>Skrin Mobil:</strong> Sentuh & seret kapal terbang atau gunakan butang kawalan skrin di bawah.</li>
-                    <li><strong>Komputer:</strong> Gunakan kekunci Anak Panah (← → ↑ ↓) atau tetikus.</li>
-                    <li><strong>Tembakan:</strong> Tembakan automatik diaktifkan secara berterusan!</li>
-                </ul>
+                <h1 class="space-font text-2xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-200 to-purple-400 tracking-wide uppercase leading-tight">
+                    Misi Kod Galaktik
+                </h1>
+                <h2 class="text-xs sm:text-sm font-semibold text-blue-300 mt-1">
+                    Asas Sains Komputer (ASK) Tingkatan 1
+                </h2>
             </div>
-        </div>
 
-        <div class="w-full max-w-md mb-6 text-left">
-            <label for="student-name" class="block text-xs sm:text-sm font-semibold text-slate-300 mb-2 space-font">
-                👤 Nama Komander Angkasa:
-            </label>
-            <input type="text" id="student-name" class="w-full px-4 py-3 rounded-xl bg-slate-950/90 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 outline-none text-white transition-all text-sm placeholder-slate-500" placeholder="Masukkan nama penuh anda..." required>
-            <p id="name-error" class="text-red-400 text-xs mt-1.5 hidden font-medium">⚠️ Sila masukkan nama anda sebelum memulakan misi!</p>
-        </div>
+            <!-- Story & Rules Box -->
+            <div class="bg-slate-900/95 p-4 sm:p-5 rounded-2xl text-left text-xs sm:text-sm border border-slate-800 space-y-3 leading-relaxed shadow-inner">
+                <div>
+                    <h3 class="space-font font-bold text-yellow-400 text-xs sm:text-sm flex items-center gap-1.5">
+                        📜 Jalan Cerita Misi:
+                    </h3>
+                    <p class="text-slate-300 mt-1">
+                        Sistem komunikasi stesen angkasa telah diserang oleh pepijat (👾)! Komander dikehendaki mengemudi kapal angkasa, menembak pepijat, dan menyelesaikan 10 soalan Asas Sains Komputer untuk memulihkan rangkaian galaksi.
+                    </p>
+                </div>
 
-        <button id="start-btn" type="button" class="space-font text-sm sm:text-base bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-3.5 px-8 sm:px-10 rounded-full btn-hover transition-all duration-300 shadow-[0_0_25px_rgba(59,130,246,0.5)] flex items-center justify-center gap-2 mx-auto cursor-pointer">
-            🚀 MULA MISI ANG KASA
-        </button>
+                <div>
+                    <h3 class="space-font font-bold text-green-400 text-xs sm:text-sm flex items-center gap-1.5">
+                        🎯 Panduan & Kawalan Play:
+                    </h3>
+                    <ul class="list-disc pl-5 text-slate-300 space-y-1 mt-1">
+                        <li><strong>Pengeluaran Tembakan:</strong> Meriam laser menembak secara berterusan!</li>
+                        <li><strong>Sentuhan Mobil:</strong> Sentuh & seret kapal angkasa terus pada skrin ATAU gunakan butang anak panah di bahagian bawah.</li>
+                        <li><strong>Komputer:</strong> Gunakan kekunci Anak Panah (← → ↑ ↓).</li>
+                        <li><strong>Matlamat:</strong> Elak asteroid (☄️), tembak pepijat (👾) & jawab soalan.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Student Name Input Form -->
+            <div class="text-left w-full space-y-2">
+                <label for="student-name" class="block space-font text-xs sm:text-sm font-semibold text-slate-200">
+                    👤 Nama Komander Angkasa:
+                </label>
+                <input type="text" id="student-name" autocomplete="name" class="w-full px-4 py-3.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/50 outline-none text-white text-sm transition-all placeholder-slate-500" placeholder="Masukkan nama penuh anda..." required>
+                <p id="name-error" class="hidden-screen text-red-400 text-xs font-semibold mt-1">
+                    ⚠️ Sila masukkan nama anda sebelum memulakan misi!
+                </p>
+            </div>
+
+            <!-- Start Mission Button -->
+            <div class="pt-2">
+                <button id="start-btn" type="button" class="w-full space-font text-sm sm:text-base bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black py-4 px-8 rounded-2xl transition-all duration-200 transform active:scale-95 shadow-[0_0_25px_rgba(59,130,246,0.5)] flex items-center justify-center gap-2 cursor-pointer border border-blue-400/30">
+                    🚀 MULA MISI ANG KASA
+                </button>
+            </div>
+
+        </div>
     </div>
 
     <!-- GAMEPLAY SCREEN -->
     <div id="game-screen" class="hidden-screen fixed inset-0 w-full h-full z-10 flex flex-col justify-between">
         <!-- HUD Overlay Header -->
         <div class="absolute top-3 left-3 right-3 flex justify-between items-center z-20 pointer-events-none">
-            <div class="glass px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl flex items-center gap-2 shadow-lg">
+            <div class="glass-card px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-lg">
                 <span class="text-xl sm:text-2xl">🏆</span>
                 <div>
                     <div class="text-[10px] sm:text-xs text-slate-400 space-font font-bold">SKOR</div>
-                    <div id="hud-score" class="font-black text-base sm:text-xl text-yellow-400">0</div>
+                    <div id="hud-score" class="font-black text-sm sm:text-lg text-yellow-400">0</div>
                 </div>
             </div>
             
-            <div class="glass px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-2xl flex items-center gap-2 shadow-lg">
+            <div class="glass-card px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-lg">
                 <span class="text-xl sm:text-2xl">📝</span>
                 <div>
                     <div class="text-[10px] sm:text-xs text-slate-400 space-font font-bold">SOALAN</div>
-                    <div class="font-black text-base sm:text-xl text-cyan-400"><span id="hud-progress">0</span>/10</div>
+                    <div class="font-black text-sm sm:text-lg text-cyan-400"><span id="hud-progress">0</span>/10</div>
                 </div>
             </div>
         </div>
@@ -200,101 +219,101 @@
         <!-- Canvas Game Arena -->
         <canvas id="game-canvas"></canvas>
 
-        <!-- On-Screen Touch Controls for Mobile Users -->
-        <div id="mobile-controls" class="absolute bottom-4 left-0 right-0 z-20 flex flex-col items-center gap-2 pointer-events-auto sm:hidden">
+        <!-- Touch Controls for Mobile Users -->
+        <div id="mobile-controls" class="absolute bottom-4 left-0 right-0 z-20 flex flex-col items-center gap-1.5 pointer-events-auto sm:hidden select-none">
             <div class="flex gap-2">
-                <button id="btn-up" class="w-12 h-12 rounded-full bg-slate-800/80 border border-slate-600 text-white text-xl flex items-center justify-center active:bg-blue-600">▲</button>
+                <button id="btn-up" type="button" class="w-11 h-11 rounded-full bg-slate-900/90 border border-slate-600 text-white text-lg flex items-center justify-center active:bg-blue-600 active:scale-95 shadow-lg">▲</button>
             </div>
             <div class="flex gap-4">
-                <button id="btn-left" class="w-12 h-12 rounded-full bg-slate-800/80 border border-slate-600 text-white text-xl flex items-center justify-center active:bg-blue-600">◀</button>
-                <button id="btn-down" class="w-12 h-12 rounded-full bg-slate-800/80 border border-slate-600 text-white text-xl flex items-center justify-center active:bg-blue-600">▼</button>
-                <button id="btn-right" class="w-12 h-12 rounded-full bg-slate-800/80 border border-slate-600 text-white text-xl flex items-center justify-center active:bg-blue-600">▶</button>
+                <button id="btn-left" type="button" class="w-11 h-11 rounded-full bg-slate-900/90 border border-slate-600 text-white text-lg flex items-center justify-center active:bg-blue-600 active:scale-95 shadow-lg">◀</button>
+                <button id="btn-down" type="button" class="w-11 h-11 rounded-full bg-slate-900/90 border border-slate-600 text-white text-lg flex items-center justify-center active:bg-blue-600 active:scale-95 shadow-lg">▼</button>
+                <button id="btn-right" type="button" class="w-11 h-11 rounded-full bg-slate-900/90 border border-slate-600 text-white text-lg flex items-center justify-center active:bg-blue-600 active:scale-95 shadow-lg">▶</button>
             </div>
         </div>
     </div>
 
     <!-- QUIZ MODAL OVERLAY -->
-    <div id="quiz-modal" class="hidden-screen fixed inset-0 z-30 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
-        <div class="glass glass-scroll rounded-3xl p-5 sm:p-8 max-w-xl w-full border-t-4 border-blue-500 shadow-[0_0_50px_rgba(59,130,246,0.3)] my-auto max-h-[88vh] overflow-y-auto">
-            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700/60">
-                <h3 class="space-font text-base sm:text-xl text-blue-400 font-bold flex items-center gap-2">
+    <div id="quiz-modal" class="hidden-screen fixed inset-0 z-40 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4">
+        <div class="glass-card touch-scroll rounded-3xl p-5 sm:p-8 max-w-xl w-full border-t-4 border-blue-500 shadow-[0_0_50px_rgba(59,130,246,0.3)] my-auto max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4 pb-2 border-b border-slate-700/70">
+                <h3 class="space-font text-sm sm:text-lg text-blue-400 font-bold flex items-center gap-2">
                     🛰️ Transmisi Soalan Masuk!
                 </h3>
-                <span class="text-2xl sm:text-3xl animate-pulse">👾</span>
+                <span class="text-2xl animate-pulse">👾</span>
             </div>
             
-            <div class="bg-slate-900/90 rounded-2xl p-4 sm:p-6 mb-5 shadow-inner border border-slate-700/80">
-                <p id="question-text" class="text-xs sm:text-base font-medium leading-relaxed text-slate-100">
+            <div class="bg-slate-900/95 rounded-2xl p-4 sm:p-5 mb-5 shadow-inner border border-slate-800">
+                <div id="question-text" class="text-xs sm:text-base font-medium leading-relaxed text-slate-100">
                     Soalan akan dipaparkan di sini...
-                </p>
+                </div>
             </div>
 
             <div id="options-container" class="grid grid-cols-1 gap-2.5 sm:gap-3">
-                <!-- Buttons injected dynamically -->
+                <!-- Options buttons injected dynamically -->
             </div>
         </div>
     </div>
 
     <!-- FEEDBACK MODAL OVERLAY -->
-    <div id="feedback-modal" class="hidden-screen fixed inset-0 z-40 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
-        <div id="feedback-box" class="rounded-3xl p-6 sm:p-8 text-center shadow-2xl flex flex-col items-center glass max-w-lg w-full max-h-[88vh] overflow-y-auto glass-scroll border-2 transition-all duration-300 my-auto">
-            <div id="feedback-icon" class="text-5xl sm:text-7xl mb-2 animate-bounce"></div>
-            <h2 id="feedback-title" class="space-font text-2xl sm:text-3xl font-black mb-2 drop-shadow-md"></h2>
-            <p id="feedback-msg" class="text-xs sm:text-sm font-medium mb-6 leading-relaxed text-slate-200 bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 text-left w-full"></p>
+    <div id="feedback-modal" class="hidden-screen fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4">
+        <div id="feedback-box" class="rounded-3xl p-6 sm:p-8 text-center shadow-2xl flex flex-col items-center glass-card max-w-lg w-full max-h-[85vh] overflow-y-auto touch-scroll border-2 transition-all duration-300 my-auto">
+            <div id="feedback-icon" class="text-5xl sm:text-6xl mb-2 animate-bounce"></div>
+            <h2 id="feedback-title" class="space-font text-xl sm:text-3xl font-black mb-2 drop-shadow-md"></h2>
+            <div id="feedback-msg" class="text-xs sm:text-sm font-medium mb-6 leading-relaxed text-slate-200 bg-slate-900/90 p-4 rounded-xl border border-slate-800 text-left w-full"></div>
             
-            <button id="feedback-next-btn" type="button" class="space-font text-xs sm:text-sm px-8 py-3.5 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 font-bold text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.5)] btn-hover cursor-pointer flex items-center gap-2">
+            <button id="feedback-next-btn" type="button" class="w-full space-font text-xs sm:text-sm px-8 py-3.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 font-bold text-white transition-all shadow-[0_0_20px_rgba(16,185,129,0.5)] active:scale-95 cursor-pointer">
                 TERUSKAN MISI ➔
             </button>
         </div>
     </div>
 
     <!-- END GAME / CERTIFICATE SCREEN -->
-    <div id="end-screen" class="hidden-screen fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4 overflow-y-auto">
-        <div class="glass glass-scroll rounded-3xl p-5 sm:p-8 max-w-2xl w-full shadow-[0_0_60px_rgba(234,179,8,0.25)] my-auto max-h-[90vh] overflow-y-auto border border-yellow-500/30">
+    <div id="end-screen" class="hidden-screen fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-3 sm:p-4">
+        <div class="glass-card touch-scroll rounded-3xl p-5 sm:p-8 max-w-2xl w-full shadow-[0_0_60px_rgba(234,179,8,0.25)] my-auto max-h-[88vh] overflow-y-auto border border-yellow-500/40">
             
             <!-- Certificate Header -->
             <div class="text-center mb-6 sm:mb-8 border-b border-slate-700/80 pb-6">
-                <div class="text-5xl sm:text-7xl mb-2">🎓</div>
+                <div class="text-5xl sm:text-6xl mb-2">🎓</div>
                 <h1 class="space-font text-2xl sm:text-4xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-600 font-black tracking-wider uppercase mb-2">
                     Sijil Pencapaian
                 </h1>
                 <p class="text-slate-300 text-xs sm:text-sm">Ini mengesahkan bahawa Komander Angkasa</p>
                 <h2 id="cert-name" class="text-xl sm:text-3xl font-black text-cyan-300 my-2 tracking-wide uppercase">Nama Pelajar</h2>
-                <p class="text-slate-300 text-xs sm:text-sm">telah berjaya menyempurnakan Misi Kod Galaktik Asas Sains Komputer!</p>
+                <p class="text-slate-300 text-xs sm:text-sm">telah berjaya menyempurnakan Misi Kod Galaktik Asas Sains Komputer Tingkatan 1!</p>
             </div>
 
             <!-- Stats & Badge Display Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                <div class="bg-slate-900/90 rounded-2xl p-4 sm:p-5 border border-slate-700 flex flex-col items-center justify-center text-center">
+                <div class="bg-slate-900/90 rounded-2xl p-4 sm:p-5 border border-slate-800 flex flex-col items-center justify-center text-center">
                     <h3 class="text-slate-400 space-font text-xs mb-1 font-bold">KETEPATAN AKADEMIK</h3>
                     <div class="text-3xl sm:text-5xl font-black text-cyan-400 mb-1">
-                        <span id="final-score">0</span><span class="text-xl text-slate-500">/10</span>
+                        <span id="final-score">0</span><span class="text-lg text-slate-500">/10</span>
                     </div>
                     <p class="text-[11px] text-slate-400">Soalan dijawab betul pada percubaan pertama</p>
                 </div>
 
-                <div class="bg-slate-900/90 rounded-2xl p-4 sm:p-5 border border-slate-700 flex flex-col items-center justify-center text-center">
+                <div class="bg-slate-900/90 rounded-2xl p-4 sm:p-5 border border-slate-800 flex flex-col items-center justify-center text-center">
                     <h3 class="text-slate-400 space-font text-xs mb-1 font-bold">LENCANA PANGKAT</h3>
-                    <div id="badge-icon" class="text-4xl sm:text-6xl drop-shadow-[0_0_20px_rgba(255,215,0,0.8)] mb-1">🥇</div>
+                    <div id="badge-icon" class="text-4xl sm:text-5xl drop-shadow-[0_0_20px_rgba(255,215,0,0.8)] mb-1">🥇</div>
                     <div id="badge-name" class="font-bold text-sm sm:text-base text-yellow-400">Komander Emas</div>
                 </div>
             </div>
 
-            <!-- Student Reflection Area -->
-            <div class="mb-6 no-print text-left">
-                <label for="reflection" class="block text-xs sm:text-sm font-bold text-green-400 space-font mb-2">
+            <!-- Student Reflection Input -->
+            <div class="mb-6 no-print text-left space-y-1.5">
+                <label for="reflection" class="block text-xs sm:text-sm font-bold text-green-400 space-font">
                     📝 Refleksi Misi Pembelajaran:
                 </label>
-                <p class="text-xs text-slate-300 mb-2">Apakah tajuk atau konsep Asas Sains Komputer yang paling menarik yang anda pelajari hari ini?</p>
+                <p class="text-xs text-slate-300">Apakah tajuk atau konsep Asas Sains Komputer yang paling menarik yang anda pelajari hari ini?</p>
                 <textarea id="reflection" rows="3" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-green-500 focus:ring-1 focus:ring-green-500 outline-none text-white text-xs sm:text-sm resize-none placeholder-slate-500" placeholder="Tuliskan refleksi ringkas anda di sini..."></textarea>
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 no-print">
-                <button type="button" onclick="window.print()" class="px-6 py-3 rounded-full bg-slate-800 hover:bg-slate-700 font-bold transition-all text-xs sm:text-sm flex items-center justify-center gap-2 border border-slate-600 btn-hover cursor-pointer">
+            <div class="flex flex-col sm:flex-row justify-center gap-3 no-print">
+                <button type="button" onclick="window.print()" class="px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 font-bold transition-all text-xs sm:text-sm flex items-center justify-center gap-2 border border-slate-600 active:scale-95 cursor-pointer">
                     🖨️ Cetak / Simpan Sijil
                 </button>
-                <button id="replay-btn" type="button" class="space-font px-8 py-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 font-bold text-white transition-all text-xs sm:text-sm shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 btn-hover cursor-pointer">
+                <button id="replay-btn" type="button" class="space-font px-8 py-3.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 font-bold text-white transition-all text-xs sm:text-sm shadow-[0_0_20px_rgba(16,185,129,0.4)] flex items-center justify-center gap-2 active:scale-95 cursor-pointer">
                     🔄 MAIN SEMULA MISI
                 </button>
             </div>
@@ -302,7 +321,7 @@
     </div>
 
     <script>
-        // --- DATA: 10 Form 1 Asas Sains Komputer Questions ---
+        // --- DATASET: 10 Form 1 Asas Sains Komputer Questions ---
         const allQuestions = [
             {
                 q: "Apakah teknik pemikiran komputasional yang melibatkan aspek yang penting dalam permasalahan dan meninggalkan aspek yang kurang penting?",
@@ -314,7 +333,7 @@
                 q: "Antara berikut, pernyataan manakah TIDAK BENAR mengenai sistem Asas 10?",
                 options: ["A. Menggunakan sepuluh pilihan digit", "B. Digunakan dalam kehidupan seharian", "C. Digunakan oleh komputer untuk menyimpan data", "D. Pilihan digit terdiri daripada 0, 1, 2, 3, 4, 5, 6, 7, 9"],
                 ans: 3, // D
-                explanation: "Sistem Asas 10 menggunakan digit 0 hingga 9 (iaitu 0, 1, 2, 3, 4, 5, 6, 7, 8, 9). Option D tidak menyenaraikan digit 8."
+                explanation: "Sistem Asas 10 menggunakan digit 0 hingga 9 (iaitu 0, 1, 2, 3, 4, 5, 6, 7, 8, 9). Opsyen D tertinggal digit 8."
             },
             {
                 q: "Setiap bintik-bintik kecil yang membentuk imej digital dikenali sebagai X. Apakah X?",
@@ -323,7 +342,7 @@
                 explanation: "Piksel (picture element) ialah unit paling asas atau bintik kecil yang membentuk paparan imej digital pada skrin."
             },
             {
-                q: "Antara berikut, yang manakah BETUL tentang format fail imej BMP (Bitmap)?\nI. Sesuai untuk imej berbentuk ilustrasi/kartun.\nII. Mempunyai julat warna sehingga 16 juta warna.\nIII. Saiz fail besar kerana tidak dimampatkan.\nIV. Imej berkualiti tinggi.",
+                q: "Antara berikut, yang manakah BETUL tentang format fail imej BMP (Bitmap)?\nI. Sesuai untuk imej berbentuk ilustrasi.\nII. Mempunyai julat warna sehingga 16 juta warna.\nIII. Saiz fail besar kerana tidak dimampatkan.\nIV. Imej berkualiti tinggi.",
                 options: ["A. I, II dan III", "B. II, III dan IV", "C. I, III dan IV", "D. Semua di atas"],
                 ans: 3, // D
                 explanation: "Semua pernyataan I, II, III, dan IV adalah tepat mengenai ciri-ciri format imej Bitmap (BMP)."
@@ -332,7 +351,7 @@
                 q: "Tunku Abdul Rahman melaungkan \"MERDEKA\" sebanyak 7 kali. Sekiranya pembilang bermula = 1, apakah syarat yang betul bagi ulangan 7 kali?\nI. Pembilang < 7\nII. Pembilang < 8\nIII. Pembilang <= 7\nIV. Pembilang <= 8",
                 options: ["A. I dan II", "B. II dan III", "C. II dan IV", "D. III dan IV"],
                 ans: 1, // B
-                explanation: "Apabila pembilang bermula pada 1, kedua-dua syarat (pembilang < 8) dan (pembilang <= 7) akan membolehkan gelung berulang tepat 7 kali."
+                explanation: "Apabila pembilang bermula pada 1, kedua-dua syarat (pembilang < 8) dan (pembilang <= 7) membolehkan gelung berulang tepat 7 kali."
             },
             {
                 q: "Guru meminta murid membaca sifir berulang-ulang kali sehingga berjaya menghafalnya. Nyatakan struktur kawalan yang digunakan.",
@@ -374,33 +393,39 @@
             end: document.getElementById('end-screen')
         };
 
+        function showScreen(screenKey) {
+            Object.keys(screens).forEach(key => {
+                if (screens[key]) {
+                    screens[key].classList.add('hidden-screen');
+                }
+            });
+            if (screens[screenKey]) {
+                screens[screenKey].classList.remove('hidden-screen');
+            }
+        }
+
         const studentNameInput = document.getElementById('student-name');
         const nameError = document.getElementById('name-error');
         const startBtn = document.getElementById('start-btn');
         const replayBtn = document.getElementById('replay-btn');
-        
-        // HUD
+
         const hudScore = document.getElementById('hud-score');
         const hudProgress = document.getElementById('hud-progress');
 
-        // Quiz Elements
         const qText = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
 
-        // Feedback Elements
         const feedbackBox = document.getElementById('feedback-box');
         const feedbackIcon = document.getElementById('feedback-icon');
         const feedbackTitle = document.getElementById('feedback-title');
         const feedbackMsg = document.getElementById('feedback-msg');
         const feedbackNextBtn = document.getElementById('feedback-next-btn');
 
-        // Certificate Elements
         const certName = document.getElementById('cert-name');
         const finalScoreEl = document.getElementById('final-score');
         const badgeIconEl = document.getElementById('badge-icon');
         const badgeNameEl = document.getElementById('badge-name');
 
-        // Tone.js Audio Synths
         let successSynth, errorSynth, shootSynth, explosionSynth;
         let audioInitialized = false;
 
@@ -436,7 +461,7 @@
                     audioInitialized = true;
                 }
             } catch (e) {
-                console.log("Audio synth fallback initialized");
+                console.log("Audio initialized in fallback mode");
             }
         }
 
@@ -471,16 +496,15 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             if (player) {
-                player.y = canvas.height - 100;
+                player.y = canvas.height - 90;
             }
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // Player Spaceship Object
         const player = {
             x: window.innerWidth / 2,
-            y: window.innerHeight - 100,
-            size: 42,
+            y: window.innerHeight - 90,
+            size: 40,
             speed: 7,
             emoji: '🚀'
         };
@@ -490,7 +514,6 @@
         let obstacles = [];
         let particles = [];
 
-        // Game state variables
         let playerName = "";
         let questionsRemaining = [];
         let currentQuestionObj = null;
@@ -502,19 +525,14 @@
         let isPaused = false;
         let animationId = null;
 
-        // Controls state
         const keys = { ArrowLeft: false, ArrowRight: false, ArrowUp: false, ArrowDown: false };
         window.addEventListener('keydown', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = true; });
         window.addEventListener('keyup', e => { if (keys.hasOwnProperty(e.key)) keys[e.key] = false; });
 
-        // Touch Control Buttons for Mobile Players
-        const btnUp = document.getElementById('btn-up');
-        const btnDown = document.getElementById('btn-down');
-        const btnLeft = document.getElementById('btn-left');
-        const btnRight = document.getElementById('btn-right');
-
-        function setupMobileButton(btn, keyName) {
+        function setupMobileButton(btnId, keyName) {
+            const btn = document.getElementById(btnId);
             if (!btn) return;
+            
             const startHandler = (e) => { e.preventDefault(); keys[keyName] = true; };
             const endHandler = (e) => { e.preventDefault(); keys[keyName] = false; };
 
@@ -524,18 +542,16 @@
             btn.addEventListener('mouseup', endHandler);
         }
 
-        setupMobileButton(btnUp, 'ArrowUp');
-        setupMobileButton(btnDown, 'ArrowDown');
-        setupMobileButton(btnLeft, 'ArrowLeft');
-        setupMobileButton(btnRight, 'ArrowRight');
+        setupMobileButton('btn-up', 'ArrowUp');
+        setupMobileButton('btn-down', 'ArrowDown');
+        setupMobileButton('btn-left', 'ArrowLeft');
+        setupMobileButton('btn-right', 'ArrowRight');
 
-        // Direct Touch & Drag Control on Canvas
         let isDragging = false;
         function updatePlayerPos(clientX, clientY) {
             if (!isPlaying || isPaused) return;
-            
             player.x = clientX;
-            player.y = clientY - 35;
+            player.y = clientY - 30;
             
             if (player.x < player.size / 2) player.x = player.size / 2;
             if (player.x > canvas.width - player.size / 2) player.x = canvas.width - player.size / 2;
@@ -546,18 +562,18 @@
         canvas.addEventListener('mousedown', e => { isDragging = true; updatePlayerPos(e.clientX, e.clientY); });
         canvas.addEventListener('mousemove', e => { if (isDragging) updatePlayerPos(e.clientX, e.clientY); });
         canvas.addEventListener('mouseup', () => isDragging = false);
-        
-        canvas.addEventListener('touchstart', e => { 
+
+        canvas.addEventListener('touchstart', e => {
             if (e.touches.length > 0) {
-                isDragging = true; 
-                updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY); 
+                isDragging = true;
+                updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY);
             }
         }, { passive: false });
 
-        canvas.addEventListener('touchmove', e => { 
+        canvas.addEventListener('touchmove', e => {
             if (isDragging && e.touches.length > 0) {
-                e.preventDefault(); 
-                updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY); 
+                e.preventDefault();
+                updatePlayerPos(e.touches[0].clientX, e.touches[0].clientY);
             }
         }, { passive: false });
 
@@ -572,32 +588,28 @@
 
             const now = Date.now();
 
-            // Keyboard/D-pad movement
             if (keys.ArrowLeft && player.x > player.size / 2) player.x -= player.speed;
             if (keys.ArrowRight && player.x < canvas.width - player.size / 2) player.x += player.speed;
             if (keys.ArrowUp && player.y > player.size / 2) player.y -= player.speed;
             if (keys.ArrowDown && player.y < canvas.height - player.size / 2) player.y += player.speed;
 
-            // Auto Laser Shooting
-            if (now - lastShootTime > 280) {
-                bullets.push({ x: player.x, y: player.y - player.size / 2, radius: 4, speed: 11, color: '#38bdf8' });
+            if (now - lastShootTime > 260) {
+                bullets.push({ x: player.x, y: player.y - player.size / 2, radius: 4, speed: 12, color: '#38bdf8' });
                 playShootSound();
                 lastShootTime = now;
             }
 
-            // Move Bullets
             for (let i = bullets.length - 1; i >= 0; i--) {
                 let b = bullets[i];
                 b.y -= b.speed;
                 if (b.y < 0) bullets.splice(i, 1);
             }
 
-            // Spawn Alien Bugs
-            if (now - lastEnemyTime > 2200 && questionsRemaining.length > 0 && enemies.length < 2) {
+            if (now - lastEnemyTime > 2000 && questionsRemaining.length > 0 && enemies.length < 2) {
                 enemies.push({
                     x: Math.random() * (canvas.width - 80) + 40,
                     y: -50,
-                    size: 44,
+                    size: 42,
                     speed: 2 + Math.random() * 1.5,
                     emoji: '👾',
                     wobble: Math.random() * Math.PI * 2
@@ -605,11 +617,10 @@
                 lastEnemyTime = now;
             }
 
-            // Move Bugs & Check Laser Hits
             for (let i = enemies.length - 1; i >= 0; i--) {
                 let e = enemies[i];
                 e.y += e.speed;
-                e.x += Math.sin(e.wobble) * 1.8;
+                e.x += Math.sin(e.wobble) * 1.6;
                 e.wobble += 0.05;
 
                 if (e.y > canvas.height + e.size) {
@@ -634,13 +645,12 @@
                 }
             }
 
-            // Spawn Asteroids
-            if (now - lastObstacleTime > 1400) {
+            if (now - lastObstacleTime > 1500) {
                 obstacles.push({
                     x: Math.random() * (canvas.width - 60) + 30,
                     y: -50,
-                    size: 32 + Math.random() * 18,
-                    speed: 3.5 + Math.random() * 2.5,
+                    size: 30 + Math.random() * 16,
+                    speed: 3.2 + Math.random() * 2.2,
                     emoji: '☄️',
                     rotation: 0,
                     rotSpeed: (Math.random() - 0.5) * 0.1
@@ -648,7 +658,6 @@
                 lastObstacleTime = now;
             }
 
-            // Move Asteroids & Check Ship Collision
             for (let i = obstacles.length - 1; i >= 0; i--) {
                 let o = obstacles[i];
                 o.y += o.speed;
@@ -669,7 +678,6 @@
                 }
             }
 
-            // Particle Decay
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx;
@@ -684,7 +692,6 @@
 
             if (!isPlaying) return;
 
-            // Draw Bullets
             bullets.forEach(b => {
                 ctx.beginPath();
                 ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
@@ -693,7 +700,6 @@
                 ctx.closePath();
             });
 
-            // Draw Explosion Particles
             particles.forEach(p => {
                 ctx.globalAlpha = p.life;
                 ctx.beginPath();
@@ -703,21 +709,17 @@
                 ctx.globalAlpha = 1.0;
             });
 
-            // Center Align Text for Emojis
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
-            // Draw Player Ship
             ctx.font = `${player.size}px Arial`;
             ctx.fillText(player.emoji, player.x, player.y);
 
-            // Draw Alien Bugs
             enemies.forEach(e => {
                 ctx.font = `${e.size}px Arial`;
                 ctx.fillText(e.emoji, e.x, e.y);
             });
 
-            // Draw Asteroids
             obstacles.forEach(o => {
                 ctx.save();
                 ctx.translate(o.x, o.y);
@@ -735,12 +737,12 @@
         }
 
         function createExplosion(x, y, colors) {
-            for (let i = 0; i < 16; i++) {
+            for (let i = 0; i < 15; i++) {
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 9,
-                    vy: (Math.random() - 0.5) * 9,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
                     size: Math.random() * 4 + 2,
                     color: colors[Math.floor(Math.random() * colors.length)],
                     life: 1.0,
@@ -761,17 +763,20 @@
             currentQuestionObj = questionsRemaining.shift();
             
             const formattedQuestion = currentQuestionObj.q.replace(/\n/g, '<br>');
-            qText.innerHTML = `<span class="text-xs sm:text-sm text-yellow-400 space-font font-bold">SOALAN ${10 - questionsRemaining.length} DARIPADA 10:</span><br><br>${formattedQuestion}`;
+            qText.innerHTML = `<span class="text-xs text-yellow-400 space-font font-bold">SOALAN ${10 - questionsRemaining.length} / 10:</span><br><br>${formattedQuestion}`;
             
             optionsContainer.innerHTML = '';
 
             currentQuestionObj.options.forEach((opt, index) => {
                 const btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = "w-full text-left p-3.5 sm:p-4 rounded-xl bg-slate-800/90 hover:bg-blue-600/40 border border-slate-700 hover:border-blue-400 transition-all text-xs sm:text-sm font-semibold text-slate-200 btn-hover flex items-center justify-between cursor-pointer";
-                btn.innerHTML = `<span>${opt}</span> <span class="text-base opacity-0 transition-opacity">🚀</span>`;
+                btn.className = "w-full text-left p-3.5 sm:p-4 rounded-xl bg-slate-800 hover:bg-blue-600/40 border border-slate-700 hover:border-blue-400 transition-all text-xs sm:text-sm font-semibold text-slate-200 active:scale-98 flex items-center justify-between cursor-pointer";
+                btn.innerHTML = `<span>${opt}</span> <span class="text-base opacity-80">🚀</span>`;
                 
-                btn.onclick = () => evaluateAnswer(index, btn);
+                btn.onclick = (e) => {
+                    e.preventDefault();
+                    evaluateAnswer(index, btn);
+                };
                 optionsContainer.appendChild(btn);
             });
 
@@ -791,11 +796,10 @@
                 }
                 updateHUD();
 
-                // Show Success Feedback Modal
-                feedbackBox.className = "rounded-3xl p-6 sm:p-8 text-center shadow-2xl flex flex-col items-center glass max-w-lg w-full max-h-[88vh] overflow-y-auto glass-scroll border-2 border-green-500/60 my-auto";
+                feedbackBox.className = "rounded-3xl p-6 sm:p-8 text-center shadow-2xl flex flex-col items-center glass-card max-w-lg w-full max-h-[85vh] overflow-y-auto touch-scroll border-2 border-green-500/60 my-auto";
                 feedbackIcon.innerText = "🎉";
                 feedbackTitle.innerText = "JAWAPAN TEPAT!";
-                feedbackTitle.className = "space-font text-2xl sm:text-3xl font-black mb-2 text-green-400 drop-shadow-md";
+                feedbackTitle.className = "space-font text-xl sm:text-3xl font-black mb-2 text-green-400 drop-shadow-md";
                 feedbackMsg.innerText = currentQuestionObj.explanation;
 
                 screens.quiz.classList.add('hidden-screen');
@@ -804,13 +808,14 @@
                 playErrorSound();
                 isFirstTryForCurrentQ = false;
                 
-                buttonEl.classList.remove('bg-slate-800/90', 'border-slate-700');
-                buttonEl.classList.add('bg-red-900/60', 'border-red-500', 'text-red-200');
+                buttonEl.classList.remove('bg-slate-800', 'border-slate-700');
+                buttonEl.classList.add('bg-red-900/70', 'border-red-500', 'text-red-200');
                 buttonEl.disabled = true;
             }
         }
 
-        feedbackNextBtn.onclick = () => {
+        feedbackNextBtn.onclick = (e) => {
+            if (e) e.preventDefault();
             screens.feedback.classList.add('hidden-screen');
 
             if (questionsRemaining.length > 0) {
@@ -847,22 +852,31 @@
             badgeIconEl.innerText = badgeIcon;
             badgeNameEl.innerText = badgeName;
 
-            screens.game.classList.add('hidden-screen');
-            screens.end.classList.remove('hidden-screen');
+            showScreen('end');
         }
 
-        // START GAME BUTTON
-        startBtn.onclick = (e) => {
-            if (e) e.preventDefault();
-            const nameValue = studentNameInput.value.trim();
-            if (!nameValue) {
-                nameError.classList.remove('hidden');
+        function handleStartMission(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            const nameVal = studentNameInput ? studentNameInput.value.trim() : '';
+
+            if (!nameVal) {
+                if (nameError) nameError.classList.remove('hidden-screen');
+                if (studentNameInput) studentNameInput.focus();
                 return;
             }
-            nameError.classList.add('hidden');
-            playerName = nameValue;
 
-            initAudio();
+            if (nameError) nameError.classList.add('hidden-screen');
+            playerName = nameVal;
+
+            try {
+                initAudio();
+            } catch (err) {
+                console.warn('Audio init warning:', err);
+            }
 
             score = 0;
             firstTryCorrectCount = 0;
@@ -876,10 +890,9 @@
             resizeCanvas();
 
             player.x = canvas.width / 2;
-            player.y = canvas.height - 100;
+            player.y = canvas.height - 90;
 
-            screens.intro.classList.add('hidden-screen');
-            screens.game.classList.remove('hidden-screen');
+            showScreen('game');
 
             isPlaying = true;
             isPaused = false;
@@ -887,18 +900,27 @@
             if (!animationId) {
                 gameLoop();
             }
-        };
+        }
 
-        // REPLAY GAME BUTTON
-        replayBtn.onclick = (e) => {
-            if (e) e.preventDefault();
-            screens.end.classList.add('hidden-screen');
-            screens.intro.classList.remove('hidden-screen');
-        };
+        if (startBtn) {
+            startBtn.addEventListener('click', handleStartMission);
+            startBtn.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                handleStartMission(e);
+            });
+        }
 
-        // Init on window load
+        if (replayBtn) {
+            replayBtn.onclick = (e) => {
+                if (e) e.preventDefault();
+                showScreen('intro');
+            };
+        }
+
+        // Initialize canvas sizing on window load
         window.onload = () => {
             resizeCanvas();
+            showScreen('intro');
         };
     </script>
 </body>
