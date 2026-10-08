@@ -76,7 +76,39 @@
     <!-- Background -->
     <div class="stars"></div>
 
-    
+    <div id="intro-screen" class="glass rounded-3xl p-8 max-w-2xl w-full mx-4 text-center shadow-2xl z-10 flex flex-col items-center">
+        <div class="text-5xl mb-4">🚀</div>
+        <h1 class="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2 drop-shadow-lg">
+            Misi Kod Galaktik
+        </h1>
+        <h2 class="text-xl text-blue-300 font-semibold mb-6">Ulang Kaji Asas Sains Komputer Tingkatan 1</h2>
+        
+        <div class="bg-slate-800/50 p-4 rounded-xl mb-6 text-left text-sm md:text-base border border-slate-700 w-full">
+            <h3 class="font-bold text-yellow-400 mb-2 space-font">📜 Jalan Cerita:</h3>
+            <p class="mb-4 text-slate-300">Anda adalah seorang komander angkasa yang dalam perjalanan melalui Galaksi. Pepijat asing cuba mengganggu navigasi anda! Kalahkan mereka untuk mendedahkan kod pengetahuan yang tersembunyi.</p>
+            
+            <h3 class="font-bold text-green-400 mb-2 space-font">🎯 Objektif:</h3>
+            <p class="mb-4 text-slate-300">Elak asteroid, tembak pepijat asing, dan jawab semua 10 soalan Asas Sains Komputer dengan betul untuk sampai ke pangkalan dengan selamat!</p>
+            
+            <h3 class="font-bold text-blue-400 mb-2 space-font">🕹️ Arahan:</h3>
+            <ul class="list-disc pl-5 text-slate-300">
+                <li><strong>Gerak:</strong> Seret kapal anda atau gunakan Kekunci Anak Panah.</li>
+                <li><strong>Tembak:</strong> Automatik.</li>
+                <li><strong>Elak:</strong> Jauhi asteroid yang jatuh (☄️).</li>
+                <li><strong>Pertempuran:</strong> Tembak makhluk asing (👾) untuk membuka soalan. Jawab dengan betul untuk meneruskan!</li>
+            </ul>
+        </div>
+
+        <div class="w-full max-w-md mb-6">
+            <label for="student-name" class="block text-sm font-medium text-slate-400 mb-2 text-left">Masukkan Nama Anda, Komander:</label>
+            <input type="text" id="student-name" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-600 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none text-white transition-all" placeholder="cth. Ali bin Abu" required>
+            <p id="name-error" class="text-red-400 text-sm mt-1 hidden text-left">Sila masukkan nama anda untuk bermula.</p>
+        </div>
+
+        <button id="start-btn" class="space-font text-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-4 px-10 rounded-full btn-hover transition-all duration-300 shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+            🚀 MULA MISI KOD
+        </button>
+    </div>
 
     <div id="game-screen" class="hidden-screen absolute inset-0 w-full h-full">
         <!-- HUD -->
