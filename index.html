@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Galactic Code Quest - ASK Tingkatan 1</title>
+    <title>Misi Kod Galaktik</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Tone.js for Audio -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Press+Start+2P&display=swap" rel="stylesheet">
-    
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Press+Start+2P&display=swap');
+
         body {
             margin: 0;
             overflow: hidden;
             background-color: #02000d;
             font-family: 'Inter', sans-serif;
             color: white;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
         #game-container {
@@ -56,23 +53,19 @@
             z-index: 50;
             padding: 20px;
             box-sizing: border-box;
-            pointer-events: none; /* Let clicks pass through to canvas if needed */
-        }
-
-        .ui-element {
-            pointer-events: auto; /* Enable clicks on specific UI elements */
+            pointer-events: auto;
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* Glassmorphism Effect */
+        /* Glassmorphism Effect for Main Menu */
         .glass-card {
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(59, 130, 246, 0.4);
+            border: 1px solid rgba(59, 130, 246, 0.3);
             border-radius: 1.5rem;
             padding: 2.5rem;
             max-width: 600px;
@@ -82,100 +75,79 @@
             box-shadow: 0 0 40px rgba(59, 130, 246, 0.2), inset 0 0 20px rgba(59, 130, 246, 0.1);
             text-align: center;
         }
-        
+
         /* Custom Scrollbar for mobile glass card */
         .glass-card::-webkit-scrollbar { width: 5px; }
         .glass-card::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
         
-        .title-font {
-            font-family: 'Press Start 2P', cursive;
-            line-height: 1.5;
-        }
-
         .btn {
-            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            background: linear-gradient(90deg, #2563eb, #7c3aed);
             color: white;
             font-weight: bold;
-            padding: 12px 24px;
+            padding: 1rem 2rem;
             border-radius: 9999px;
             border: none;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
             text-transform: uppercase;
             letter-spacing: 1px;
+            width: 100%;
+            margin-top: 1rem;
         }
 
         .btn:hover {
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
         }
 
-        .btn:active {
-            transform: translateY(1px);
-        }
+        .btn:active { transform: translateY(1px); }
 
         .btn-option {
             background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            color: #e2e8f0;
-            padding: 15px;
-            border-radius: 12px;
-            margin: 10px 0;
-            width: 100%;
+            border: 2px solid #3b82f6;
+            color: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
             text-align: left;
             transition: all 0.2s;
-            cursor: pointer;
+            margin-bottom: 0.75rem;
+            width: 100%;
+            font-size: 0.9rem;
         }
 
-        .btn-option:hover {
-            background: rgba(59, 130, 246, 0.3);
-            border-color: #3b82f6;
+        .btn-option:hover { background: rgba(59, 130, 246, 0.3); }
+        .btn-option:disabled { cursor: not-allowed; opacity: 0.7; }
+        .btn-option.correct { background: #10b981; border-color: #059669; color: white; }
+        .btn-option.wrong { background: #ef4444; border-color: #b91c1c; color: white; }
+
+        .shake { animation: shake 0.5s; }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            50% { transform: translateX(10px); }
+            75% { transform: translateX(-10px); }
+            100% { transform: translateX(0); }
         }
 
-        #hud {
+        /* Mobile Controls */
+        #mobile-controls {
             position: absolute;
-            top: 20px;
+            bottom: 30px;
             left: 0;
             width: 100%;
-            padding: 0 30px;
             display: flex;
             justify-content: space-between;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            z-index: 40;
-            box-sizing: border-box;
-            pointer-events: none;
-        }
-
-        .hud-icon {
-            color: #facc15;
-            margin-right: 8px;
-        }
-        
-        .life-icon {
-            color: #ef4444;
-            margin-right: 4px;
-        }
-
-        /* Touch Controls */
-        #touch-controls {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
+            padding: 0 40px;
             box-sizing: border-box;
             z-index: 40;
+            display: none;
+            touch-action: none;
         }
-
-        .touch-btn {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
+        .control-btn {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             width: 70px;
             height: 70px;
@@ -185,702 +157,524 @@
             font-size: 24px;
             color: white;
             user-select: none;
+            backdrop-filter: blur(5px);
         }
-        
-        .touch-btn:active {
-            background: rgba(255, 255, 255, 0.3);
-        }
+        .control-btn:active { background: rgba(255,255,255,0.3); }
 
-        .touch-group {
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
             display: flex;
-            gap: 15px;
-        }
-        
-        @media (min-width: 768px) {
-            #touch-controls {
-                display: none !important;
-            }
+            justify-content: space-between;
+            z-index: 40;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
 <div id="game-container">
-    <canvas id="gameCanvas"></canvas>
-    
-    <!-- Heads Up Display -->
-    <div id="hud" class="hidden">
-        <div><span class="hud-icon">⭐</span>Markah: <span id="scoreDisplay">0</span></div>
-        <div>
-            <span id="livesDisplay">
-                <span class="life-icon">❤️</span><span class="life-icon">❤️</span><span class="life-icon">❤️</span>
-            </span>
+    <canvas id="game-canvas"></canvas>
+
+    <div id="start-screen" class="ui-layer">
+        <div class="glass-card">
+            <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2 pixel-font leading-snug">MISI KOD<br>GALAKTIK</h1>
+            <p class="text-gray-300 text-sm mb-6">Misi Ulang Kaji: Asas Sains Komputer Tingkatan 1</p>
+            
+            <div class="text-left bg-black bg-opacity-40 p-4 rounded-lg mb-6 border border-blue-900">
+                <h3 class="font-bold text-blue-300 mb-2 text-center">📜 OBJEKTIF MISI</h3>
+                <ul class="text-sm space-y-2 text-gray-200">
+                    <li>🛸 <b>Juruterbang Kapal:</b> Anda adalah komander kapal angkasa.</li>
+                    <li>☄️ <b>Elak Halangan:</b> Jauhi asteroid kelabu. (Hilang 1 nyawa jika terlanggar!)</li>
+                    <li>🎯 <b>Tembak Pod Misi:</b> Tembak pod hijau untuk menjawab soalan.</li>
+                    <li>🧠 <b>Jawab Kuiz:</b> Pilih jawapan yang betul untuk melepasi pusat pemeriksaan sistem.</li>
+                </ul>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-blue-300 text-sm font-bold mb-2 text-left" for="player-name">
+                    👤 Masukkan Nama Anda:
+                </label>
+                <input type="text" id="player-name" placeholder="cth. Ali / Ejen Mamat" 
+                       class="w-full p-3 rounded-lg bg-gray-800 border border-blue-500 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-500">
+            </div>
+            
+            <button id="start-btn" class="btn text-lg">🚀 MULA MISI</button>
         </div>
     </div>
 
-    <!-- UI Overlay Layer -->
-    <div class="ui-layer">
-        
-        <!-- Main Menu -->
-        <div id="mainMenu" class="glass-card ui-element">
-            <h1 class="title-font text-2xl md:text-3xl text-blue-400 mb-4 tracking-wider">GALACTIC<br><span class="text-purple-400">CODE QUEST</span></h1>
-            <p class="text-gray-300 mb-6 text-sm md:text-base">
-                Selamatkan galaksi dari asteroid! Tembak <strong>Asteroid Bercahaya (Biru)</strong> untuk menjawab soalan <strong>Asas Sains Komputer Tingkatan 1</strong>.
-            </p>
-            <div class="flex flex-col gap-3 text-left bg-black/30 p-4 rounded-xl mb-6 text-sm">
-                <p>💻 <strong>Kawalan PC:</strong> Panah Kiri/Kanan & Spacebar</p>
-                <p>📱 <strong>Kawalan Mobile:</strong> Butang Sentuh di skrin</p>
-                <p>✅ <strong>Jawapan Betul:</strong> +100 Markah</p>
-                <p>❌ <strong>Jawapan Salah / Kena Langgar:</strong> Hilang 1 Nyawa</p>
-            </div>
-            <button id="startBtn" class="btn w-full title-font text-sm py-4">Mula Misi</button>
+    <div id="hud" class="hidden">
+        <div>
+            <span class="text-blue-400">XP: </span><span id="score-display">0</span>
+            <br>
+            <span class="text-sm text-gray-300" id="level-display">SEMAKAN 1/10</span>
         </div>
+        <div class="text-right">
+            <span class="text-red-400">NYAWA: </span><br>
+            <span id="lives-display" class="tracking-widest">❤️❤️❤️❤️❤️</span>
+        </div>
+    </div>
 
-        <!-- Question Modal -->
-        <div id="questionModal" class="hidden glass-card ui-element w-full max-w-lg">
-            <div class="animate-pulse flex justify-center mb-4">
-                <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center border-4 border-blue-300 shadow-[0_0_20px_#3b82f6]">
-                    <span class="text-3xl">❓</span>
+    <div id="mobile-controls">
+        <div class="control-btn" id="btn-left">◀</div>
+        <div class="control-btn" id="btn-right">▶</div>
+    </div>
+
+    <div id="game-over-screen" class="ui-layer hidden">
+        <div class="glass-card border-red-500" style="box-shadow: 0 0 40px rgba(239, 68, 68, 0.3);">
+            <h2 class="text-4xl font-bold text-red-500 mb-4 pixel-font">MISI GAGAL</h2>
+            <p class="text-gray-300 mb-6">Kapal angkasa anda telah dimusnahkan oleh asteroid.</p>
+            <button onclick="resetToMainMenu()" class="btn" style="background: linear-gradient(90deg, #ef4444, #b91c1c);">🔄 CUBA LAGI</button>
+        </div>
+    </div>
+
+    <div id="quiz-screen" class="ui-layer hidden" style="background: rgba(0,0,0,0.8);">
+        <div class="glass-card" id="quiz-card">
+            <h2 id="quiz-title" class="text-xl font-bold text-blue-400 mb-2">SEMAKAN</h2>
+            <p id="quiz-question" class="text-lg mb-6 font-semibold leading-relaxed text-left text-white"></p>
+            
+            <div id="options-container" class="w-full flex flex-col space-y-2">
+                <!-- Options injected here via JS -->
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedback-msg" class="hidden mt-4 p-4 rounded-lg bg-black bg-opacity-50 border transition-all">
+                <p id="feedback-text" class="font-bold whitespace-pre-line mb-2"></p>
+                <button id="next-btn" class="btn hidden mt-2">SETERUSNYA ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="certificate-screen" class="ui-layer hidden">
+        <div class="glass-card" style="border-color: #f59e0b; max-width: 700px;">
+            <div class="text-center mb-6">
+                <p class="text-yellow-400 font-bold mb-2">🎓 SIJIL PENCAPAIAN</p>
+                <h2 class="text-3xl font-bold text-white mb-1 pixel-font">PENGKOD GALAKTIK</h2>
+            </div>
+            
+            <div class="bg-black bg-opacity-40 p-6 rounded-lg mb-6 border border-yellow-600">
+                <p class="text-gray-300">Dianugerahkan kepada Komander:</p>
+                <h3 id="cert-name" class="text-2xl font-bold text-blue-300 mt-2 mb-4 uppercase">NAMA PELAJAR</h3>
+                
+                <div class="flex justify-center items-center space-x-8">
+                    <div>
+                        <p class="text-sm text-gray-400">Skor (XP)</p>
+                        <p id="cert-score" class="text-2xl font-bold text-white">1000</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-400">Lencana</p>
+                        <p id="cert-badge" class="text-2xl font-bold text-yellow-400">🌟 PAKAR</p>
+                    </div>
                 </div>
             </div>
-            <h2 class="text-xl font-bold mb-2 text-blue-300">PINTASAN DATA!</h2>
-            <p id="questionText" class="text-lg mb-6 font-medium text-white"></p>
-            <div id="optionsContainer" class="flex flex-col gap-2">
-                <!-- Options injected via JS -->
+
+            <div class="mb-6 text-left">
+                <label class="block text-sm text-gray-300 mb-2">📝 Refleksi Akhir (Apakah yang anda pelajari hari ini?)</label>
+                <textarea rows="3" class="w-full p-3 rounded-lg bg-gray-800 border border-gray-600 text-white focus:outline-none focus:border-blue-500" placeholder="Tulis refleksi anda di sini..."></textarea>
             </div>
-        </div>
 
-        <!-- Game Over Menu -->
-        <div id="gameOverMenu" class="hidden glass-card ui-element">
-            <h1 class="title-font text-3xl text-red-500 mb-2">MISI GAGAL</h1>
-            <p class="text-xl text-gray-200 mb-6">Markah Akhir: <span id="finalScore" class="font-bold text-yellow-400">0</span></p>
-            <button id="restartBtn" class="btn w-full title-font text-sm py-4">Cuba Lagi</button>
+            <button onclick="resetToMainMenu()" class="btn">🔄 MAIN SEMULA</button>
         </div>
-
-    </div>
-
-    <!-- Touch Controls (Mobile Only) -->
-    <div id="touch-controls" class="hidden ui-element">
-        <div class="touch-group">
-            <div class="touch-btn" id="btnLeft">◀</div>
-            <div class="touch-btn" id="btnRight">▶</div>
-        </div>
-        <div class="touch-btn" id="btnShoot" style="width: 80px; border-radius: 20px; background: rgba(59, 130, 246, 0.3);">💥</div>
     </div>
 </div>
 
 <script>
-    // --- Data: ASK Tingkatan 1 Questions ---
-    const askQuestions = [
+    const questionsData = [
         {
-            q: "Apakah sistem nombor yang menggunakan hanya digit 0 dan 1?",
-            options: ["Sistem Perpuluhan", "Sistem Perduaan", "Sistem Perlapanan", "Sistem Perenambelasan"],
-            answer: 1
+            title: "SEMAKAN 01 ⏳ PEMIKIRAN KOMPUTASIONAL",
+            q: "Apakah teknik pemikiran komputasional yang melibatkan aspek yang penting dalam pemasalahan dan meninggalkan aspek yang kurang penting?[cite: 1]",
+            options: ["A) Leraian", "B) Peniskalaan", "C) Pengitlakan", "D) Pengecaman Corak"],
+            answer: 1, // Index 1 (B)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Peniskalaan (abstraksi) ialah proses mengenal pasti dan menumpukan kepada maklumat atau ciri yang penting dalam sesuatu masalah, manakala maklumat yang tidak penting diketepikan.[cite: 1]"
         },
         {
-            q: "Dalam carta alir, bentuk bujur (oval) mewakili langkah...",
-            options: ["Proses", "Input/Output", "Mula/Tamat", "Pilihan"],
-            answer: 2
+            title: "SEMAKAN 02 ⌛ SISTEM ASAS 10",
+            q: "Antara berikut, pernyataan manakah TIDAK BENAR mengenai sistem Asas 10?[cite: 1]",
+            options: ["A) Menggunakan sepuluh pilihan digit", "B) Digunakan dalam kehidupan seharian", "C) Digunakan oleh komputer untuk menyimpan data", "D) Pilihan digit terdiri daripada 0, 1, 2, 3, 4, 5, 6, 7, 9"],
+            answer: 3, // Index 3 (D)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Sistem Asas 10 menggunakan sepuluh digit, iaitu 0 hingga 9. Pernyataan D tidak lengkap kerana digit 8 tidak disenaraikan. Oleh itu, pernyataan tersebut adalah tidak benar.[cite: 1]"
         },
         {
-            q: "Satu urutan langkah-langkah untuk menyelesaikan suatu masalah dikenali sebagai...",
-            options: ["Algoritma", "Pseudokod", "Kod Mesin", "Pembolehubah"],
-            answer: 0
+            title: "SEMAKAN 03 🚦 IMEJ DIGITAL",
+            q: "Setiap bintik-bintik kecil yang membentuk imej dikenali sebagai X. Apakah X?[cite: 1]",
+            options: ["A) Piksel", "B) Dimensi", "C) Resolusi", "D) Kedalaman bit warna"],
+            answer: 0, // Index 0 (A)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Piksel ialah unit atau bintik kecil yang membentuk sesuatu imej digital. Lebih banyak piksel biasanya membolehkan imej mempunyai perincian yang lebih tinggi.[cite: 1]"
         },
         {
-            q: "Berapakah bit yang terdapat dalam 1 Bait (Byte)?",
-            options: ["4 bit", "8 bit", "16 bit", "32 bit"],
-            answer: 1
+            title: "SEMAKAN 04 ☁️ FORMAT FAIL IMEJ",
+            q: "Antara berikut, yang manakah BETUL tentang format fail imej BMP (Bitmap)?[cite: 1]\nI. Sesuai untuk gambar ikon, butang atau imej berbentuk ilustrasi atau kartun.\nII. Format ini sesuai untuk imej yang mempunyai bilangan warna antara 256 hingga 16 juta warna.\nIII. Saiz fail adalah besar kerana data imej tidak boleh dimampatkan.\nIV. Imej dalam format ini adalah berkualiti tinggi.",
+            options: ["A) I, II dan III", "B) II, III dan IV", "C) I, III dan IV", "D) Semua di atas"],
+            answer: 3, // Index 3 (D)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Keempat-empat pernyataan adalah betul dalam konteks ciri BMP yang dipelajari. BMP boleh menyimpan imej berkualiti tinggi dan lazimnya mempunyai saiz fail yang besar kerana data imej tidak dimampatkan seperti format mampatan tertentu.[cite: 1]"
         },
         {
-            q: "Manakah antara berikut BUKAN teknik pemikiran komputasional?",
-            options: ["Leraian", "Pengecaman Corak", "Pengekodan", "Peniskalaan"],
-            answer: 2
+            title: "SEMAKAN 05 🍏 STRUKTUR KAWALAN ULANGAN",
+            q: "Tunku Abdul Rahman melaungkan \"MERDEKA\" sebanyak 7 kali. Sekiranya pembilang = 1, apakah syarat yang benar jika laungan sebanyak 7 kali?[cite: 1]\nI. Pembilang < 7\nII. Pembilang < 8\nIII. Pembilang <= 7\nIV. Pembilang <= 8",
+            options: ["A) I dan II", "B) II dan III", "C) II dan IV", "D) III dan IV"],
+            answer: 2, // Index 2 (C)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Jika pembilang bermula pada 1 dan proses perlu berlaku sebanyak 7 kali, syarat pembilang < 8 atau pembilang <= 8 membenarkan nilai 1 hingga 7. Syarat pembilang < 7 atau pembilang <= 7 tidak menghasilkan padanan yang sama.[cite: 2]"
         },
         {
-            q: "Struktur kawalan yang membenarkan pelaksanaan arahan berulang kali dipanggil?",
-            options: ["Struktur Jujukan", "Struktur Pilihan", "Struktur Ulangan", "Struktur Bebas"],
-            answer: 2
+            title: "SEMAKAN 06 🧂 STRUKTUR KAWALAN",
+            q: "Guru meminta murid membaca sifir berulang-ulang kali sehingga berjaya menghafalnya. Nyatakan struktur kawalan yang digunakan.[cite: 2]",
+            options: ["A) Struktur kawalan Ulang-Selamanya", "B) Struktur kawalan pilihan Tunggal", "C) Struktur kawalan Dwipilihan", "D) Struktur kawalan Untuk"],
+            answer: 0, // Index 0 (A)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Situasi menunjukkan arahan membaca sifir dilakukan berulang-ulang kali tanpa bilangan ulangan khusus yang dinyatakan. Oleh itu, struktur kawalan Ulang-Selamanya paling sesuai untuk mewakili pengulangan berterusan.[cite: 2]"
         },
         {
-            q: "Tukar nombor perduaan 1010 kepada nombor perpuluhan.",
-            options: ["8", "10", "12", "14"],
-            answer: 1
+            title: "SEMAKAN 07 🔗 JENIS DATA",
+            q: "Data logik dalam bentuk True dan False ialah data jenis...[cite: 2]",
+            options: ["A) Nilai berangka", "B) Boolean", "C) Nombor", "D) Teks"],
+            answer: 1, // Index 1 (B)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Boolean ialah jenis data logik yang hanya mempunyai dua nilai, iaitu True (benar) dan False (palsu).[cite: 2]"
         },
         {
-            q: "Simbol rombus (berlian) dalam carta alir digunakan untuk...",
-            options: ["Proses", "Syarat/Pilihan", "Mula/Tamat", "Penyambung"],
-            answer: 1
+            title: "SEMAKAN 08 👥 PEMBANGUNAN ATUR CARA",
+            q: "Susun fasa-fasa pembangunan atur cara berikut mengikut urutan yang BETUL.[cite: 2]\nI. Pengekodan\nII. Pengujian dan penyahpepijatan\nIII. Analisis masalah\nIV. Reka bentuk atur cara",
+            options: ["A) I, III, II dan IV", "B) III, IV, I dan II", "C) III, IV, I dan I", "D) IV, III, II dan I"],
+            answer: 1, // Index 1 (B)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Urutan pembangunan atur cara yang betul ialah analisis masalah -> reka bentuk atur cara -> pengekodan -> pengujian dan penyahpepijatan. Oleh itu, urutannya ialah III, IV, I dan II.[cite: 2]"
         },
         {
-            q: "Apakah perwakilan visual bagi algoritma?",
-            options: ["Carta Alir", "Pseudokod", "Bait", "Papan Induk"],
-            answer: 0
+            title: "SEMAKAN 09 ⛺ HTML (SAIZ TEKS)",
+            q: "X merujuk kepada tag HTML yang berfungsi untuk mengarahkan pelayar web memaparkan teks dengan saiz tertentu. Nyatakan X.[cite: 3]",
+            options: ["A) <body> </body>", "B) <head> </head>", "C) <h1> </h1>", "D) <p> </p>"],
+            answer: 2, // Index 2 (C)
+            successText: "✨ BETUL!\n⭐ +100 XP",
+            animText: "Tag heading seperti <h1> digunakan untuk tajuk atau heading pada halaman web. Tag <h1> biasanya menghasilkan tajuk dengan saiz heading yang paling besar dalam set heading HTML.[cite: 3]"
         },
         {
-            q: "Format fail audio manakah yang memberikan kualiti tanpa mampatan (uncompressed)?",
-            options: ["MP3", "MIDI", "WAV", "JPEG"],
-            answer: 2
+            title: "SEMAKAN 10 🌧️ HTML (IMEJ)",
+            q: "Apakah fungsi kod arahan di bawah?[cite: 3]\n<img src = \"logo.jpg\">",
+            options: ["A) Memasukkan teks ke dalam laman sesawang", "B) Memasukkan imej ke dalam laman sesawang", "C) Memasukkan tajuk kepada laman utama", "D) Pautan mudah kepada imej"],
+            answer: 1, // Index 1 (B)
+            successText: "✨ BETUL! MISI SELESAI! ✨\n⭐ +100 XP",
+            animText: "Tag <img> digunakan untuk memaparkan imej pada halaman web. Atribut src menentukan lokasi atau nama fail imej yang hendak dipaparkan, dalam contoh ini ialah logo.jpg.[cite: 3]"
         }
     ];
 
-    // --- Game Variables ---
-    const canvas = document.getElementById('gameCanvas');
+    const canvas = document.getElementById('game-canvas');
     const ctx = canvas.getContext('2d');
     
-    let width, height;
-    let gameState = 'menu'; // menu, playing, question, gameover
-    let score = 0;
-    let lives = 3;
-    let lastTime = 0;
-    
-    // Entities
-    let player;
-    let bullets = [];
-    let asteroids = [];
-    let particles = [];
-    let stars = [];
-
-    // Controls
-    const keys = { ArrowLeft: false, ArrowRight: false, Space: false };
-    let touchLeft = false;
-    let touchRight = false;
-    let touchShoot = false;
-    let lastShootTime = 0;
-    const shootCooldown = 250; // ms
-
-    // Difficulty scaling
-    let spawnRate = 1500;
-    let lastSpawnTime = 0;
-    let speedMultiplier = 1;
-
-    // Audio Synths
-    let synth, noiseSynth, polySynth;
-    let audioInitialized = false;
-
-    // UI Elements
-    const uiMainMenu = document.getElementById('mainMenu');
-    const uiGameOver = document.getElementById('gameOverMenu');
-    const uiQuestion = document.getElementById('questionModal');
-    const uiHud = document.getElementById('hud');
-    const uiTouch = document.getElementById('touch-controls');
-    
-    const displayScore = document.getElementById('scoreDisplay');
-    const displayLives = document.getElementById('livesDisplay');
-    const displayFinalScore = document.getElementById('finalScore');
-    const questionText = document.getElementById('questionText');
-    const optionsContainer = document.getElementById('optionsContainer');
-
-    // --- Setup & Initialization ---
+    // Resize handler
     function resizeCanvas() {
-        width = window.innerWidth;
-        height = window.innerHeight;
-        canvas.width = width;
-        canvas.height = height;
-        if(player) player.y = height - 60;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
-
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    function initAudio() {
-        if (audioInitialized) return;
-        
-        // Shoot sound
-        synth = new Tone.Synth({
-            oscillator: { type: 'square' },
-            envelope: { attack: 0.01, decay: 0.1, sustain: 0.0, release: 0.1 }
-        }).toDestination();
-        synth.volume.value = -10;
+    // Game Variables
+    let isPlaying = false;
+    let inQuizMode = false;
+    let playerName = "";
+    let score = 0;
+    let lives = 5;
+    let currentQuestionIndex = 0;
+    
+    let leftPressed = false;
+    let rightPressed = false;
 
-        // Explosion sound
-        noiseSynth = new Tone.NoiseSynth({
-            noise: { type: 'pink' },
-            envelope: { attack: 0.01, decay: 0.2, sustain: 0 }
-        }).toDestination();
-        noiseSynth.volume.value = -15;
+    // Entities Arrays
+    let stars = [];
+    let bullets = [];
+    let enemies = []; // Question pods
+    let obstacles = []; // Asteroids
+    let particles = [];
 
-        // UI/Correct/Wrong sound
-        polySynth = new Tone.PolySynth(Tone.Synth).toDestination();
-        polySynth.volume.value = -10;
+    let lastShotTime = 0;
+    const FIRE_RATE = 400; // ms between auto-shots
+    let animationFrameId;
 
-        Tone.start();
-        audioInitialized = true;
+    // Synths for SFX
+    const sfxSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: "square" },
+        envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.1 }
+    }).toDestination();
+    sfxSynth.volume.value = -12;
+
+    const damageSynth = new Tone.MembraneSynth().toDestination();
+    damageSynth.volume.value = -5;
+
+    // Background Music (BGM)
+    const bgmSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: "sine" },
+        envelope: { attack: 0.5, decay: 1, sustain: 0.5, release: 1 }
+    }).toDestination();
+    bgmSynth.volume.value = -18;
+
+    const chords = [
+        ["C4", "E4", "G4"], 
+        ["A3", "C4", "E4"], 
+        ["F3", "A3", "C4"], 
+        ["G3", "B3", "D4"]
+    ];
+    let chordIndex = 0;
+    const bgmLoop = new Tone.Loop(time => {
+        bgmSynth.triggerAttackRelease(chords[chordIndex], "1m", time);
+        chordIndex = (chordIndex + 1) % chords.length;
+    }, "1m");
+
+    // Audio Play Functions
+    function playShoot() { if(Tone.context.state === 'running') sfxSynth.triggerAttackRelease("C5", "32n"); }
+    function playDamage() { if(Tone.context.state === 'running') damageSynth.triggerAttackRelease("C2", "8n"); }
+    function playCorrect() { 
+        if(Tone.context.state === 'running') {
+            sfxSynth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "4n");
+        }
+    }
+    function playWrong() {
+        if(Tone.context.state === 'running') {
+            sfxSynth.triggerAttackRelease("C3", "8n");
+            setTimeout(() => sfxSynth.triggerAttackRelease("G2", "4n"), 150);
+        }
     }
 
-    function playShootSound() { if (audioInitialized) synth.triggerAttackRelease("C5", "8n"); }
-    function playExplosionSound() { if (audioInitialized) noiseSynth.triggerAttackRelease("8n"); }
-    function playCorrectSound() { if (audioInitialized) polySynth.triggerAttackRelease(["C5", "E5", "G5"], "4n"); }
-    function playWrongSound() { if (audioInitialized) polySynth.triggerAttackRelease(["C3", "D#3"], "4n"); }
-
-    // --- Game Classes ---
-    class Player {
-        constructor() {
-            this.width = 40;
-            this.height = 40;
-            this.x = width / 2;
-            this.y = height - 60;
-            this.speed = width > 768 ? 6 : 4; // Faster on PC, balanced on mobile
-            this.color = '#3b82f6';
-            this.radius = 20; // For collision
-        }
-
+    const player = {
+        w: 50, h: 50, x: 0, y: 0, speed: 6,
+        init() {
+            this.x = canvas.width / 2 - this.w / 2;
+            this.y = canvas.height - 100;
+        },
         draw() {
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            
-            // Thruster flame
+            // Draw a futuristic spaceship
+            ctx.fillStyle = '#3b82f6';
             ctx.beginPath();
-            ctx.moveTo(-10, 15);
-            ctx.lineTo(10, 15);
-            ctx.lineTo(0, 15 + Math.random() * 20);
-            ctx.fillStyle = '#f97316';
+            ctx.moveTo(this.x + this.w/2, this.y);
+            ctx.lineTo(this.x + this.w, this.y + this.h);
+            ctx.lineTo(this.x, this.y + this.h);
+            ctx.closePath();
             ctx.fill();
 
-            // Ship body
-            ctx.beginPath();
-            ctx.moveTo(0, -this.height/2); // Nose
-            ctx.lineTo(this.width/2, this.height/2); // Right wing
-            ctx.lineTo(-this.width/2, this.height/2); // Left wing
-            ctx.closePath();
-            
-            ctx.fillStyle = this.color;
-            ctx.fill();
-            
             // Cockpit
-            ctx.beginPath();
-            ctx.moveTo(0, -5);
-            ctx.lineTo(8, 10);
-            ctx.lineTo(-8, 10);
             ctx.fillStyle = '#93c5fd';
+            ctx.beginPath();
+            ctx.arc(this.x + this.w/2, this.y + this.h/2 + 5, 8, 0, Math.PI*2);
             ctx.fill();
 
-            ctx.restore();
-        }
-
-        update() {
-            if ((keys.ArrowLeft || touchLeft) && this.x > this.width/2) {
-                this.x -= this.speed;
-            }
-            if ((keys.ArrowRight || touchRight) && this.x < width - this.width/2) {
-                this.x += this.speed;
-            }
-        }
-    }
-
-    class Bullet {
-        constructor(x, y) {
-            this.x = x;
-            this.y = y;
-            this.radius = 4;
-            this.speed = 10;
-            this.color = '#fef08a';
-            this.markedForDeletion = false;
-        }
-
-        draw() {
+            // Engine Flame
+            ctx.fillStyle = '#fbbf24';
             ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = this.color;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = this.color;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        }
-
-        update() {
-            this.y -= this.speed;
-            if (this.y < -10) this.markedForDeletion = true;
-        }
-    }
-
-    class Asteroid {
-        constructor() {
-            this.radius = Math.random() * 15 + 20; // 20 to 35
-            this.x = Math.random() * (width - this.radius * 2) + this.radius;
-            this.y = -this.radius;
-            this.speed = (Math.random() * 1.5 + 1) * speedMultiplier;
-            this.markedForDeletion = false;
-            this.rotation = Math.random() * Math.PI * 2;
-            this.rotSpeed = (Math.random() - 0.5) * 0.05;
-            
-            // 20% chance to be a question asteroid
-            this.isQuestion = Math.random() < 0.2;
-            
-            // Generate jagged edges
-            this.vertices = Math.floor(Math.random() * 5 + 7); // 7 to 11 vertices
-            this.offsets = [];
-            for(let i=0; i<this.vertices; i++) {
-                this.offsets.push(Math.random() * 0.4 + 0.8); // 0.8 to 1.2 scale
-            }
-        }
-
-        draw() {
-            ctx.save();
-            ctx.translate(this.x, this.y);
-            ctx.rotate(this.rotation);
-            
-            ctx.beginPath();
-            for (let i = 0; i < this.vertices; i++) {
-                const angle = (i / this.vertices) * Math.PI * 2;
-                const r = this.radius * this.offsets[i];
-                const px = Math.cos(angle) * r;
-                const py = Math.sin(angle) * r;
-                if (i === 0) ctx.moveTo(px, py);
-                else ctx.lineTo(px, py);
-            }
+            ctx.moveTo(this.x + 15, this.y + this.h);
+            ctx.lineTo(this.x + this.w/2, this.y + this.h + Math.random()*15 + 5);
+            ctx.lineTo(this.x + this.w - 15, this.y + this.h);
             ctx.closePath();
-
-            if (this.isQuestion) {
-                // Glow blue for question asteroid
-                ctx.fillStyle = '#1e3a8a';
-                ctx.strokeStyle = '#60a5fa';
-                ctx.lineWidth = 3;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = '#3b82f6';
-                ctx.fill();
-                ctx.stroke();
-                
-                // Draw a '?' in the center
-                ctx.rotate(-this.rotation); // keep text upright
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 20px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowBlur = 0;
-                ctx.fillText('?', 0, 0);
-            } else {
-                ctx.fillStyle = '#4b5563'; // Gray rock
-                ctx.strokeStyle = '#374151';
-                ctx.lineWidth = 2;
-                ctx.fill();
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
-
-        update() {
-            this.y += this.speed;
-            this.rotation += this.rotSpeed;
-            if (this.y > height + this.radius) {
-                this.markedForDeletion = true;
-            }
-        }
-    }
-
-    class Particle {
-        constructor(x, y, color) {
-            this.x = x;
-            this.y = y;
-            this.radius = Math.random() * 3 + 1;
-            this.color = color;
-            const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 4 + 1;
-            this.vx = Math.cos(angle) * speed;
-            this.vy = Math.sin(angle) * speed;
-            this.life = 1.0;
-            this.decay = Math.random() * 0.02 + 0.02;
-            this.markedForDeletion = false;
-        }
-
-        draw() {
-            ctx.save();
-            ctx.globalAlpha = this.life;
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI*2);
-            ctx.fillStyle = this.color;
             ctx.fill();
-            ctx.restore();
-        }
-
+        },
         update() {
-            this.x += this.vx;
-            this.y += this.vy;
-            this.life -= this.decay;
-            if (this.life <= 0) this.markedForDeletion = true;
+            if (rightPressed && this.x < canvas.width - this.w) this.x += this.speed;
+            if (leftPressed && this.x > 0) this.x -= this.speed;
         }
+    };
+
+    function createParticle(x, y, color) {
+        particles.push({
+            x: x, y: y,
+            vx: (Math.random() - 0.5) * 10,
+            vy: (Math.random() - 0.5) * 10,
+            life: 1.0,
+            color: color
+        });
     }
 
-    // --- Input Listeners ---
-    window.addEventListener('keydown', (e) => {
-        if(e.code === 'ArrowLeft' || e.key === 'a') keys.ArrowLeft = true;
-        if(e.code === 'ArrowRight' || e.key === 'd') keys.ArrowRight = true;
-        if(e.code === 'Space') keys.Space = true;
-    });
-
-    window.addEventListener('keyup', (e) => {
-        if(e.code === 'ArrowLeft' || e.key === 'a') keys.ArrowLeft = false;
-        if(e.code === 'ArrowRight' || e.key === 'd') keys.ArrowRight = false;
-        if(e.code === 'Space') keys.Space = false;
-    });
-
-    // Touch Controls
-    const btnLeft = document.getElementById('btnLeft');
-    const btnRight = document.getElementById('btnRight');
-    const btnShoot = document.getElementById('btnShoot');
-
-    function addTouch(elem, downFunc, upFunc) {
-        elem.addEventListener('touchstart', (e) => { e.preventDefault(); downFunc(); });
-        elem.addEventListener('mousedown', (e) => { downFunc(); });
-        elem.addEventListener('touchend', (e) => { e.preventDefault(); upFunc(); });
-        elem.addEventListener('mouseup', (e) => { upFunc(); });
-        elem.addEventListener('mouseleave', (e) => { upFunc(); });
-    }
-
-    addTouch(btnLeft, () => touchLeft = true, () => touchLeft = false);
-    addTouch(btnRight, () => touchRight = true, () => touchRight = false);
-    addTouch(btnShoot, () => touchShoot = true, () => touchShoot = false);
-
-    function checkCollision(obj1, obj2) {
-        const dx = obj1.x - obj2.x;
-        const dy = obj1.y - obj2.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < (obj1.radius + obj2.radius);
-    }
-
-    function createExplosion(x, y, color, count=15) {
-        playExplosionSound();
-        for(let i=0; i<count; i++) particles.push(new Particle(x, y, color));
-    }
-
-    function updateHUD() {
-        displayScore.innerText = score;
-        let hearts = '';
-        for(let i=0; i<lives; i++) hearts += '<span class="life-icon">❤️</span>';
-        displayLives.innerHTML = hearts;
-    }
-
-    // --- Game Logic ---
     function initStars() {
         stars = [];
-        for(let i=0; i<100; i++) {
+        for(let i=0; i<150; i++) {
             stars.push({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                radius: Math.random() * 1.5,
-                speed: Math.random() * 0.5 + 0.1,
-                alpha: Math.random()
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 3 + 0.5,
+                color: `rgba(255, 255, 255, ${Math.random()})`
             });
         }
     }
-
-    function drawBackground() {
-        ctx.fillStyle = 'rgba(2, 0, 13, 0.4)'; // Slight trail effect
-        ctx.fillRect(0, 0, width, height);
-
-        stars.forEach(star => {
-            ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
-            ctx.beginPath();
-            ctx.arc(star.x, star.y, star.radius, 0, Math.PI*2);
-            ctx.fill();
-            
-            // Move stars
-            if (gameState === 'playing' || gameState === 'menu') {
-                star.y += star.speed;
-                if (star.y > height) {
-                    star.y = 0;
-                    star.x = Math.random() * width;
-                }
-            }
-        });
-    }
-
-    function loseLife() {
-        lives--;
-        createExplosion(player.x, player.y, '#ef4444', 30);
-        playWrongSound();
-        updateHUD();
-        
-        if (lives <= 0) {
-            endGame();
-        } else {
-            // Flash screen red
-            ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
-            ctx.fillRect(0, 0, width, height);
-            
-            // Clear nearby asteroids to prevent instant double hit
-            asteroids = asteroids.filter(a => a.y < player.y - 150);
-        }
-    }
-
-    function triggerQuestion() {
-        gameState = 'question';
-        keys.Space = false;
-        touchShoot = false;
-        
-        // Pick random question
-        const qData = askQuestions[Math.floor(Math.random() * askQuestions.length)];
-        
-        questionText.innerText = qData.q;
-        optionsContainer.innerHTML = '';
-        
-        qData.options.forEach((opt, index) => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-option text-sm md:text-base';
-            btn.innerText = `${String.fromCharCode(65 + index)}. ${opt}`;
-            btn.onclick = () => handleAnswer(index === qData.answer, btn, qData.answer);
-            optionsContainer.appendChild(btn);
-        });
-
-        uiQuestion.classList.remove('hidden');
-    }
-
-    function handleAnswer(isCorrect, selectedBtn, correctIndex) {
-        const allBtns = optionsContainer.querySelectorAll('button');
-        allBtns.forEach(b => b.disabled = true); // Disable all
-
-        if (isCorrect) {
-            selectedBtn.style.backgroundColor = 'rgba(34, 197, 94, 0.6)'; // Green
-            selectedBtn.style.borderColor = '#22c55e';
-            playCorrectSound();
-            score += 100;
-        } else {
-            selectedBtn.style.backgroundColor = 'rgba(239, 68, 68, 0.6)'; // Red
-            selectedBtn.style.borderColor = '#ef4444';
-            allBtns[correctIndex].style.backgroundColor = 'rgba(34, 197, 94, 0.6)'; // Highlight correct
-            playWrongSound();
-            loseLife();
-        }
-        
-        updateHUD();
-
-        setTimeout(() => {
-            uiQuestion.classList.add('hidden');
-            if (lives > 0) {
-                gameState = 'playing';
-                lastTime = performance.now(); // reset time delta
-            }
-        }, 1500);
-    }
-
-    function startGame() {
-        initAudio();
-        
-        gameState = 'playing';
-        score = 0;
-        lives = 3;
-        speedMultiplier = 1;
-        spawnRate = 1500;
-        bullets = [];
-        asteroids = [];
-        particles = [];
-        
-        player = new Player();
-        updateHUD();
-        
-        uiMainMenu.classList.add('hidden');
-        uiGameOver.classList.add('hidden');
-        uiHud.classList.remove('hidden');
-        
-        // Show touch controls if on mobile
-        if (window.innerWidth < 768) {
-            uiTouch.classList.remove('hidden');
-            uiTouch.style.display = 'flex';
-        }
-
-        lastTime = performance.now();
-    }
-
-    function endGame() {
-        gameState = 'gameover';
-        uiHud.classList.add('hidden');
-        uiTouch.classList.add('hidden');
-        uiTouch.style.display = ''; // Reset inline style
-        uiGameOver.classList.remove('hidden');
-        displayFinalScore.innerText = score;
-    }
+    initStars();
 
     function gameLoop(timestamp) {
-        if (gameState !== 'playing') {
-            if (gameState === 'menu' || gameState === 'gameover') {
-                drawBackground();
-            }
-            requestAnimationFrame(gameLoop);
-            return; 
-        }
-
-        const deltaTime = timestamp - lastTime;
-        lastTime = timestamp;
-
-        // Draw
-        drawBackground();
-        
-        // Player Action
-        player.update();
-        player.draw();
-
-        // Shooting
-        if ((keys.Space || touchShoot) && timestamp - lastShootTime > shootCooldown) {
-            bullets.push(new Bullet(player.x, player.y - player.height/2));
-            playShootSound();
-            lastShootTime = timestamp;
-        }
-
-        // Bullets
-        bullets.forEach(b => {
-            b.update();
-            b.draw();
-        });
-        bullets = bullets.filter(b => !b.markedForDeletion);
-
-        // Asteroids
-        if (timestamp - lastSpawnTime > spawnRate) {
-            asteroids.push(new Asteroid());
-            lastSpawnTime = timestamp;
-            if (spawnRate > 500) spawnRate -= 10;
-            speedMultiplier += 0.005;
-        }
-
-        asteroids.forEach(a => {
-            a.update();
-            a.draw();
-            
-            // Collision: Asteroid with Player
-            if (checkCollision(a, player)) {
-                a.markedForDeletion = true;
-                loseLife();
-            }
-        });
-
-        // Collision: Bullets with Asteroids
-        bullets.forEach(b => {
-            asteroids.forEach(a => {
-                if (!b.markedForDeletion && !a.markedForDeletion && checkCollision(b, a)) {
-                    b.markedForDeletion = true;
-                    a.markedForDeletion = true;
-                    
-                    if (a.isQuestion) {
-                        createExplosion(a.x, a.y, '#60a5fa', 25);
-                        triggerQuestion();
-                    } else {
-                        createExplosion(a.x, a.y, '#9ca3af');
-                        score += 10;
-                        updateHUD();
-                    }
-                }
-            });
-        });
-
-        asteroids = asteroids.filter(a => !a.markedForDeletion);
-
-        // Particles
-        particles.forEach(p => {
-            p.update();
-            p.draw();
-        });
-        particles = particles.filter(p => !p.markedForDeletion);
-
-        requestAnimationFrame(gameLoop);
+        update(timestamp);
+        draw();
+        animationFrameId = requestAnimationFrame(gameLoop);
     }
 
-    // --- Boot ---
-    document.getElementById('startBtn').addEventListener('click', startGame);
-    document.getElementById('restartBtn').addEventListener('click', startGame);
+    function update(timestamp) {
+        // Always move stars for background effect
+        stars.forEach(s => {
+            s.y += s.speed;
+            if(s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
+        });
 
-    // Initial draw to prevent black screen before start
-    initStars();
-    requestAnimationFrame(gameLoop); 
+        if (!isPlaying || inQuizMode) return;
 
-</script>
-</body>
-</html>
+        player.update();
+
+        // Auto Shoot
+        if (timestamp - lastShotTime > FIRE_RATE) {
+            bullets.push({ x: player.x + player.w/2 - 2, y: player.y, w: 4, h: 15, speed: 10 });
+            playShoot();
+            lastShotTime = timestamp;
+        }
+
+        // Update Bullets
+        for (let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.y -= b.speed;
+            if (b.y < 0) bullets.splice(i, 1);
+        }
+
+        // Update Particles
+        for (let i = particles.length - 1; i >= 0; i--) {
+            let p = particles[i];
+            p.x += p.vx; p.y += p.vy;
+            p.life -= 0.05;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+
+        // Spawner Logic
+        if (Math.random() < 0.005) {
+            obstacles.push({
+                x: Math.random() * (canvas.width - 40),
+                y: -50, w: 40, h: 40, speed: Math.random() * 3 + 2
+            });
+        }
+        
+        // Spawn Enemy (Question Pod)
+        if (enemies.length === 0 && currentQuestionIndex < questionsData.length && Math.random() < 0.01) {
+            enemies.push({
+                x: Math.random() * (canvas.width - 50),
+                y: -50, w: 50, h: 50, speed: 2
+            });
+        }
+
+        // Update Obstacles & Collisions
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+            let obs = obstacles[i];
+            obs.y += obs.speed;
+            
+            let obstacleDestroyed = false;
+
+            for (let j = bullets.length - 1; j >= 0; j--) {
+                let b = bullets[j];
+                if (isCollide(b, obs)) {
+                    for(let k=0; k<10; k++) createParticle(obs.x+20, obs.y+20, '#9ca3af');
+                    
+                    bullets.splice(j, 1);
+                    obstacles.splice(i, 1);
+                    obstacleDestroyed = true;
+                    
+                    if(Tone.context.state === 'running') damageSynth.triggerAttackRelease("G1", "16n"); 
+                    break;
+                }
+            }
+
+            if (obstacleDestroyed) continue;
+
+            if (isCollide(player, obs)) {
+                for(let k=0; k<10; k++) createParticle(obs.x+20, obs.y+20, '#9ca3af');
+                obstacles.splice(i, 1);
+                takeDamage();
+                continue;
+            }
+
+            if (obs.y > canvas.height) obstacles.splice(i, 1);
+        }
+
+        // Update Enemies & Collisions
+        for (let i = enemies.length - 1; i >= 0; i--) {
+            let enemy = enemies[i];
+            enemy.y += enemy.speed;
+            if (enemy.y > canvas.height) enemies.splice(i, 1);
+
+            // Bullet vs Enemy
+            for (let j = bullets.length - 1; j >= 0; j--) {
+                let b = bullets[j];
+                if (isCollide(b, enemy)) {
+                    for(let k=0; k<15; k++) createParticle(enemy.x+25, enemy.y+25, '#10b981');
+                    bullets.splice(j, 1);
+                    enemies.splice(i, 1);
+                    triggerQuiz();
+                    break; 
+                }
+            }
+        }
+    }
+
+    function draw() {
+        ctx.fillStyle = isPlaying ? 'rgba(5, 5, 20, 0.6)' : 'transparent';
+        if(isPlaying) ctx.fillRect(0, 0, canvas.width, canvas.height);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Draw Stars
+        stars.forEach(s => {
+            ctx.fillStyle = s.color;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+
+        if (!isPlaying || inQuizMode) return;
+
+        player.draw();
+
+        // Draw Bullets
+        ctx.fillStyle = '#60a5fa';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#60a5fa';
+        bullets.forEach(b => ctx.fillRect(b.x, b.y, b.w, b.h));
+        ctx.shadowBlur = 0;
+
+        // Draw Obstacles
+        obstacles.forEach(obs => {
+            ctx.fillStyle = '#6b7280';
+            ctx.beginPath();
+            ctx.arc(obs.x + obs.w/2, obs.y + obs.h/2, obs.w/2, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = '#4b5563';
+            ctx.beginPath();
+            ctx.arc(obs.x + obs.w/3, obs.y + obs.h/3, 5, 0, Math.PI*2);
+            ctx.fill();
+        });
+
+        // Draw Enemies
+        enemies.forEach(en => {
+            ctx.fillStyle = '#10b981';
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#10b981';
+            ctx.fillRect(en.x, en.y, en.w, en.h);
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px Inter';
+            ctx.fillText('Q', en.x + 15, en.y + 35);
+            ctx.shadowBlur = 0;
+        });
+
+        // Draw Particles
+        particles.forEach(p => {
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.life;
+            ctx.fillRect(p.x, p.y, 4, 4);
+        });
+        ctx.globalAlpha = 1.0;
+    }
+
+    function isCollide(a, b) {
+        return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    }
+
+    // Keyboard controls
+    window.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') leftPressed = true;
+        if
